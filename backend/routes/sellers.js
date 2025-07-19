@@ -4,6 +4,7 @@ const Seller = require('../models/Seller');
 const Client = require('../models/Client');
 const jwt = require('jsonwebtoken');
 const verifyToken = require('../middleware/authMiddleware');
+const Order = require('../models/Order'); // Agregué Order aquí sin duplicar Client
 
 function generateSellerCode(name, zone) {
   const cleanName = name.replace(/[^A-Z0-9]/gi, '').toUpperCase();
@@ -133,7 +134,7 @@ router.post('/clients', verifyToken, sellerAuth, async (req, res) => {
     res.status(500).json({ 
       error: 'Error al crear cliente', 
       details: err.message,
-      validationErrors: err.errors // Esto mostrará los errores de validación específicos
+      validationErrors: err.errors
     });
   }
 });
@@ -179,38 +180,36 @@ router.get('/clients/:id', verifyToken, sellerAuth, async (req, res) => {
   }
 });
 
-const mongoose = require('mongoose');
-const Order = require('../models/Order');
-
-// Resumen de zona
 router.get('/zone-summary', verifyToken, sellerAuth, async (req, res) => {
   try {
     const clients = await Client.find({ seller: req.user.id });
     const totalClients = clients.length;
 
-    // Ventas personales del vendedor líder
-    const leaderOrders = await Order.find({ seller: req.user.id });
-    console.log('orders for leader sales:', leaderOrders.map(o => ({ id: o._id, total: o.total })));
-    const totalSalesLeader = leaderOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-
-    // Ventas de personas a cargo (órdenes de clientes)
+    // Obtener códigos, nombres y teléfonos de clientes
     const clientCodes = clients.map(c => c.code);
+    const clientNames = clients.map(c => c.name);
+    const clientContacts = clients.map(c => c.contact);
 
-    const clientOrders = await Order.find({
-      sellerCode: { $in: clientCodes }
+    // Ventas personales del vendedor líder (conteo)
+    const totalSalesLeader = await Order.countDocuments({ seller: req.user.id });
+
+    // Ventas de personas a cargo (conteo) por código, nombre o teléfono
+    const totalSalesClients = await Order.countDocuments({
+      $or: [
+        { sellerCode: { $in: clientCodes } },
+        { sellerName: { $in: clientNames } },
+        { sellerPhone: { $in: clientContacts } }
+      ]
     });
 
-    console.log('orders for clients sales:', clientOrders.map(o => ({ id: o._id, total: o.total })));
-    const totalSalesClients = clientOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-
-    const response = { 
-      zone: req.user.zone, 
-      totalClients, 
+    const response = {
+      zone: req.user.zone,
+      totalClients,
       totalSalesClients,
       totalSalesLeader,
       sellerCode: req.user.code
     };
-    console.log('zone-summary response:', response);
+
     res.json(response);
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener resumen', details: err.message });
