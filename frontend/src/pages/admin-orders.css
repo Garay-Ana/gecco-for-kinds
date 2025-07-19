@@ -1,0 +1,102 @@
+.admin-orders-bg {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #f5f7ff 0%, #e0e7ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  padding: 2rem 0;
+}
+
+.admin-orders-card {
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  max-width: 900px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  animation: fadeIn 0.7s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.admin-orders-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+
+.admin-orders-download {
+  background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.7rem 1.5rem;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  align-self: flex-end;
+}
+.admin-orders-download:disabled {
+  background: #c7d2fe;
+  color: #64748b;
+  cursor: not-allowed;
+}
+.admin-orders-download:hover:not(:disabled) {
+  background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.admin-orders-loading,
+.admin-orders-error {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #ef4444;
+  margin: 2rem 0;
+}
+.admin-orders-loading {
+  color: #6366f1;
+}
+
+.admin-orders-table-wrapper {
+  overflow-x: auto;
+}
+.admin-orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: #fff;
+}
+.admin-orders-table th, .admin-orders-table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+.admin-orders-table th {
+  background: #f1f5f9;
+  color: #4f46e5;
+  font-weight: 700;
+}
+.admin-orders-table tr:last-child td {
+  border-bottom: none;
+}
+@media (max-width: 700px) {
+  .admin-orders-card {
+    padding: 1.2rem 0.5rem;
+    max-width: 99vw;
+  }
+  .admin-orders-table th, .admin-orders-table td {
+    padding: 0.5rem 0.4rem;
+    font-size: 0.95rem;
+  }
+}

@@ -1,0 +1,164 @@
+/* seller.css - Estilos modernos y profesionales para login y registro de vendedor */
+.sellerlogin-bg-gradient {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #f5f7ff 0%, #e0e7ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sellerlogin-center-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.sellerlogin-card {
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  max-width: 370px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.7s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sellerlogin-icon-circle {
+  background: #f5f7ff;
+  border-radius: 50%;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 8px 0 rgba(79,70,229,0.08);
+}
+
+.sellerlogin-main-icon {
+  width: 70px;
+  height: 70px;
+  color: #10b981;
+}
+
+.sellerlogin-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.2rem;
+  text-align: center;
+}
+
+.sellerlogin-subtitle {
+  color: #6366f1;
+  font-size: 1rem;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+
+.sellerlogin-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.sellerlogin-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.sellerlogin-label {
+  font-size: 1rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.sellerlogin-input {
+  padding: 0.7rem 1rem;
+  border-radius: 0.7rem;
+  border: 1.5px solid #c7d2fe;
+  font-size: 1rem;
+  background: #f8fafc;
+  transition: border 0.2s;
+}
+.sellerlogin-input:focus {
+  outline: none;
+  border: 1.5px solid #10b981;
+  background: #fff;
+}
+
+.sellerlogin-message-error {
+  color: #ef4444;
+  background: #fef2f2;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+.sellerlogin-message-success {
+  color: #10b981;
+  background: #f0fdf4;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.sellerlogin-button {
+  width: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #6366f1 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.8rem 0;
+  margin-top: 0.2rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px 0 rgba(16,185,129,0.08);
+}
+.sellerlogin-button:hover {
+  background: linear-gradient(90deg, #059669 0%, #6366f1 100%);
+}
+
+.sellerlogin-footer {
+  margin-top: 1.2rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.97rem;
+}
+
+.sellerlogin-footer a {
+  color: #10b981;
+  text-decoration: underline;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.back-home-arrow {
+  cursor: pointer;
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  font-size: 2rem;
+  color: #10b981;
+  z-index: 10;
+}
