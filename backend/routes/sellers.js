@@ -190,15 +190,33 @@ router.get('/zone-summary', verifyToken, sellerAuth, async (req, res) => {
     const clientNames = clients.map(c => c.name);
     const clientContacts = clients.map(c => c.contact);
 
-    // Ventas personales del vendedor líder (conteo)
-    const totalSalesLeader = await Order.countDocuments({ seller: req.user.id });
+    // Obtener datos del vendedor líder para nombre y teléfono
+    const seller = await Seller.findById(req.user.id);
 
-    // Ventas de personas a cargo (conteo) por código, nombre o teléfono
-    const totalSalesClients = await Order.countDocuments({
+    // DEBUG: imprimir sellerCode de órdenes del vendedor
+    const leaderOrders = await Order.find({ sellerCode: { $regex: `^${req.user.sellerCode}$`, $options: 'i' } });
+    console.log('Código del líder:', req.user.sellerCode);
+    console.log('Órdenes con sellerCode igual al código del líder:', leaderOrders.map(o => o.sellerCode));
+
+    // Ventas personales del vendedor líder (conteo) por sellerCode o sellerName igual al líder (sin sellerPhone)
+    const totalSalesLeader = await Order.countDocuments({
       $or: [
-        { sellerCode: { $in: clientCodes } },
-        { sellerName: { $in: clientNames } },
-        { sellerPhone: { $in: clientContacts } }
+        { sellerCode: { $regex: `^${req.user.sellerCode}$`, $options: 'i' } },
+        { sellerName: { $regex: `^${seller.name}$`, $options: 'i' } }
+      ]
+    });
+
+    // Ventas de personas a cargo (conteo) por sellerCode, sellerName o sellerPhone en personas a cargo
+    const totalSalesClients = await Order.countDocuments({
+      $and: [
+        {
+          $or: [
+            { sellerCode: { $in: clientCodes.filter(code => code !== req.user.sellerCode) } },
+            { sellerName: { $in: clientNames } },
+            { sellerPhone: { $in: clientContacts } }
+          ]
+        },
+        { sellerCode: { $ne: req.user.sellerCode } }
       ]
     });
 
@@ -207,7 +225,8 @@ router.get('/zone-summary', verifyToken, sellerAuth, async (req, res) => {
       totalClients,
       totalSalesClients,
       totalSalesLeader,
-      sellerCode: req.user.code
+      sellerCode: req.user.sellerCode,
+      sellerName: seller.name
     };
 
     res.json(response);

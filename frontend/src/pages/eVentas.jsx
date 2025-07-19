@@ -116,16 +116,15 @@ export default function EVentas() {
             </div>
 
             <div className="form-group">
-              <label>Teléfono del vendedor *</label>
-              <input
-                type="text"
-                name="customerPhone"
-                value={form.customerPhone}
-                onChange={handleChange}
-                required
-                className="form-input"
-                placeholder="Ej: 3001234567"
-              />
+            <label>Teléfono del vendedor</label>
+            <input
+              type="text"
+              name="customerPhone"
+              value={form.customerPhone}
+              onChange={handleChange}
+              className="form-input"
+              placeholder="Ej: 3001234567"
+            />
             </div>
 
             <div className="form-group">

@@ -55,7 +55,7 @@ router.post('/', verifyToken, async (req, res) => {
       notes
     } = req.body;
 
-    if (!customerName || !customerPhone || !products || !quantity || !totalPrice) {
+    if (!customerName || !products || !quantity || !totalPrice) {
       return res.status(400).json({ error: 'Faltan campos obligatorios' });
     }
 
@@ -89,7 +89,9 @@ router.post('/', verifyToken, async (req, res) => {
       items,
       total: totalPrice || 0,
       seller: req.user.id,
-      sellerCode: hasSeller === 'Sí' ? sellerCode : 'VENTA DIRECTA',
+      sellerCode: hasSeller === 'Sí' ? sellerCode : req.user.code,
+      sellerName: hasSeller === 'Sí' ? sellerName : '',
+      sellerPhone: hasSeller === 'Sí' ? customerPhone : '',
       paymentMethod,
       notes
     });

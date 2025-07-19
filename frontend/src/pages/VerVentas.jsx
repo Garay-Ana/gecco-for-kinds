@@ -28,6 +28,7 @@ export default function VerVentas() {
       if (filters.startDate) params.startDate = filters.startDate;
       if (filters.endDate) params.endDate = filters.endDate;
 
+      // Eliminar límite o paginación si existiera (no hay en backend)
       const res = await axios.get('http://localhost:5000/api/sales', {
         headers: { Authorization: `Bearer ${token}` },
         params
