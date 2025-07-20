@@ -11,113 +11,142 @@ export default function VerVentas() {
   });
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState('');
+  const [totals, setTotals] = useState({
+    totalSales: '$0',
+    salesCount: 0,
+    totalItems: 0
+  });
+  const [pdfLoading, setPdfLoading] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem('sellerToken');
 
-  // Mostrar la fecha tal cual sin ajuste para evitar desfase
   const formatDateAdjusted = (dateString) => {
     if (!dateString) return '';
     const d = new Date(dateString);
     return d.toLocaleDateString('es-CO');
   };
 
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0
+    }).format(value);
+  };
+
   const fetchSales = async () => {
     try {
       setLoading(true);
+      setMsg('');
+      
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
       const params = {};
       if (filters.startDate) params.startDate = filters.startDate;
       if (filters.endDate) params.endDate = filters.endDate;
 
-      // Eliminar límite o paginación si existiera (no hay en backend)
       const res = await axios.get('http://localhost:5000/api/sales', {
         headers: { Authorization: `Bearer ${token}` },
         params
       });
-      setSales(res.data);
-      setMsg('');
+
+      if (res.data.success) {
+        setSales(res.data.data || []);
+        
+        setTotals({
+          totalSales: formatCurrency(res.data.summary?.totalVentas || 0),
+          salesCount: res.data.summary?.cantidadVentas || 0,
+          totalItems: res.data.summary?.totalProductos || 0
+        });
+        
+        setMsg('');
+      } else {
+        setMsg(res.data.error || 'Error al cargar las ventas');
+        setSales([]);
+        resetTotals();
+      }
     } catch (error) {
-      setMsg('Error al cargar las ventas');
+      console.error('Error:', error);
+      setMsg(error.response?.data?.error || 'Error al cargar las ventas');
+      setSales([]);
+      resetTotals();
     } finally {
       setLoading(false);
     }
   };
 
-
-const downloadPDFReport = async () => {
-  try {
-    setLoading(true);
-    setMsg('');
-    
-    // Validar que hay ventas para reportar
-    if (sales.length === 0) {
-      setMsg('No hay ventas para generar reporte');
-      return;
-    }
-
-    const params = {
-      startDate: filters.startDate || undefined,
-      endDate: filters.endDate || undefined
-    };
-
-    // Debug: verificar parámetros
-    console.log('Enviando parámetros:', params);
-
-    const response = await axios.get('http://localhost:5000/api/sales/report', {
-      headers: { 
-        Authorization: `Bearer ${token}`,
-        'Cache-Control': 'no-cache' // Evitar caché
-      },
-      params,
-      responseType: 'blob',
-      timeout: 30000 // 30 segundos de timeout
+  const resetTotals = () => {
+    setTotals({
+      totalSales: '$0',
+      salesCount: 0,
+      totalItems: 0
     });
+  };
 
-    // Verificar que la respuesta sea un PDF
-    const contentType = response.headers['content-type'];
-    if (!contentType.includes('application/pdf')) {
-      throw new Error(`Respuesta inesperada: ${contentType}`);
-    }
-
-    // Crear el blob y descargar
-    const blob = new Blob([response.data], { type: 'application/pdf' });
-    const downloadUrl = URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = `reporte_ventas_${new Date().toISOString().split('T')[0]}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    
-    // Limpieza
-    setTimeout(() => {
-      document.body.removeChild(link);
-      URL.revokeObjectURL(downloadUrl);
-      setMsg('Reporte descargado exitosamente');
-    }, 100);
-
-  } catch (error) {
-    console.error('Error en downloadPDFReport:', error);
-    
-    // Manejo detallado de errores
-    if (error.response) {
-      if (error.response.status === 401) {
-        setMsg('Sesión expirada. Por favor inicie sesión nuevamente');
-      } else if (error.response.status === 500) {
-        setMsg('Error en el servidor al generar el reporte');
-      } else {
-        setMsg(`Error ${error.response.status}: ${error.response.statusText}`);
+  const downloadPDFReport = async () => {
+    try {
+      setPdfLoading(true);
+      setMsg('');
+      
+      if (sales.length === 0) {
+        setMsg('No hay ventas para generar reporte');
+        return;
       }
-    } else {
-      setMsg('Error al conectar con el servidor');
+
+      const params = {
+        startDate: filters.startDate || undefined,
+        endDate: filters.endDate || undefined
+      };
+
+      const response = await axios.get('http://localhost:5000/api/sales/report', {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
+        },
+        params,
+        responseType: 'blob',
+        timeout: 30000
+      });
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const downloadUrl = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `reporte_ventas_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(downloadUrl);
+        setMsg('Reporte descargado exitosamente');
+      }, 100);
+
+    } catch (error) {
+      console.error('Error en downloadPDFReport:', error);
+      
+      if (error.response) {
+        if (error.response.status === 401) {
+          setMsg('Sesión expirada. Por favor inicie sesión nuevamente');
+        } else if (error.response.status === 500) {
+          setMsg('Error en el servidor al generar el reporte');
+        } else {
+          setMsg(`Error ${error.response.status}: ${error.response.statusText}`);
+        }
+      } else {
+        setMsg('Error al conectar con el servidor');
+      }
+    } finally {
+      setPdfLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     fetchSales();
-    // eslint-disable-next-line
   }, []);
 
   const handleFilterChange = (e) => {
@@ -130,16 +159,17 @@ const downloadPDFReport = async () => {
     fetchSales();
   };
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0
-    }).format(value);
-  };
-
   return (
     <div className="view-sales-container">
+      {loading && (
+        <div className="overlay-loader">
+          <div className="loader-content">
+            <i className="fas fa-spinner fa-spin fa-2x"></i>
+            <p>Cargando ventas...</p>
+          </div>
+        </div>
+      )}
+
       <header className="view-sales-header">
         <h1 className="view-sales-title">
           <i className="fas fa-chart-line"></i> Ventas Realizadas
@@ -148,27 +178,28 @@ const downloadPDFReport = async () => {
           <button 
             className="view-sales-back-button"
             onClick={() => navigate('/seller/eVentas')}
+            disabled={loading}
           >
             <i className="fas fa-plus-circle"></i> Registrar Nueva Venta
           </button>
           <button 
-  className={`download-pdf-button ${loading ? 'loading' : ''}`}
-  onClick={downloadPDFReport}
-  disabled={loading || sales.length === 0}
-  title={sales.length === 0 ? 'No hay ventas para reportar' : ''}
->
-  {loading ? (
-    <>
-      <i className="fas fa-spinner fa-spin"></i>
-      Generando...
-    </>
-  ) : (
-    <>
-      <i className="fas fa-file-pdf"></i>
-      Descargar Reporte
-    </>
-  )}
-</button>
+            className={`download-pdf-button ${pdfLoading ? 'loading' : ''}`}
+            onClick={downloadPDFReport}
+            disabled={pdfLoading || loading || sales.length === 0}
+            title={sales.length === 0 ? 'No hay ventas para reportar' : ''}
+          >
+            {pdfLoading ? (
+              <>
+                <i className="fas fa-spinner fa-spin"></i>
+                Generando...
+              </>
+            ) : (
+              <>
+                <i className="fas fa-file-pdf"></i>
+                Descargar Reporte
+              </>
+            )}
+          </button>
         </div>
       </header>
 
@@ -188,6 +219,8 @@ const downloadPDFReport = async () => {
                 value={filters.startDate} 
                 onChange={handleFilterChange} 
                 className="filter-input"
+                max={filters.endDate || new Date().toISOString().split('T')[0]}
+                disabled={loading}
               />
             </div>
 
@@ -199,12 +232,19 @@ const downloadPDFReport = async () => {
                 value={filters.endDate} 
                 onChange={handleFilterChange} 
                 className="filter-input"
+                max={new Date().toISOString().split('T')[0]}
+                min={filters.startDate}
+                disabled={loading}
               />
             </div>
           </div>
 
           <div className="filter-actions">
-            <button type="submit" className="filter-button">
+            <button 
+              type="submit" 
+              className="filter-button"
+              disabled={loading}
+            >
               <i className="fas fa-search"></i> Aplicar Filtros
             </button>
             <button 
@@ -214,24 +254,41 @@ const downloadPDFReport = async () => {
                 setFilters({ startDate: '', endDate: '' });
                 fetchSales();
               }}
+              disabled={loading}
             >
               <i className="fas fa-undo"></i> Limpiar
             </button>
           </div>
         </form>
 
-        {msg && <div className={`message ${msg.includes('Error') ? 'error' : 'success'}`}>{msg}</div>}
+        {msg && (
+          <div className={`message ${msg.includes('Error') ? 'error' : 'success'}`}>
+            {msg}
+          </div>
+        )}
+
+        {/* Resumen de ventas */}
+        <div className="sales-summary">
+          <div className="summary-card">
+            <h3>Total Ventas</h3>
+            <p className="summary-value">{totals.totalSales}</p>
+          </div>
+          <div className="summary-card">
+            <h3>Cantidad de Ventas</h3>
+            <p className="summary-value">{totals.salesCount}</p>
+          </div>
+          <div className="summary-card">
+            <h3>Total Productos Vendidos</h3>
+            <p className="summary-value">{totals.totalItems}</p>
+          </div>
+        </div>
 
         <section className="sales-list-section">
           <h2 className="section-title">
             <i className="fas fa-list-alt"></i> Historial de Ventas
           </h2>
 
-          {loading ? (
-            <div className="loading-indicator">
-              <i className="fas fa-spinner fa-spin"></i> Cargando ventas...
-            </div>
-          ) : sales.length === 0 ? (
+          {!loading && sales.length === 0 ? (
             <div className="empty-state">
               <i className="fas fa-box-open"></i>
               <p>No se encontraron ventas para mostrar</p>
@@ -252,8 +309,8 @@ const downloadPDFReport = async () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sales.map(sale => (
-                    <tr key={sale._id}>
+                  {sales.map((sale, index) => (
+                    <tr key={sale._id || index} className={index % 2 === 0 ? 'even-row' : 'odd-row'}>
                       <td>{formatDateAdjusted(sale.saleDate || sale.createdAt)}</td>
                       <td>{sale.customerName || 'Cliente no especificado'}</td>
                       <td>{sale.sellerCode || 'VENTA DIRECTA'}</td>
@@ -267,9 +324,11 @@ const downloadPDFReport = async () => {
                           ? sale.items.reduce((acc, item) => acc + (item.quantity || 0), 0) 
                           : sale.quantity || 'N/A'}
                       </td>
-                      <td>{formatCurrency(sale.total)}</td>
+                      <td className="total-cell">
+                        {formatCurrency(sale.total || 0)}
+                      </td>
                       <td>
-                        <span className={`payment-method ${sale.paymentMethod?.toLowerCase() || 'other'}`}>
+                        <span className={`payment-method ${(sale.paymentMethod || '').toLowerCase() || 'other'}`}>
                           {sale.paymentMethod || '-'}
                         </span>
                       </td>
