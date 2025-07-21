@@ -209,33 +209,19 @@ router.get('/report', verifyToken, async (req, res) => {
         doc.addPage();
         y = 60; // Ajuste para que la tabla empiece más arriba
         
-        // Repetir encabezados en nueva página
-        doc.font('Helvetica-Bold')
-           .fontSize(18) // Reducir tamaño para mejor ajuste
-           .fillColor('#2c3e50')
-           .text('REPORTE DE VENTAS (Continuación)', { align: 'center' })
-           .moveDown(0.5);
+        // No mostrar línea "REPORTE DE VENTAS (Continuación)"
+        // No mostrar fila encabezado "Fecha" en continuación
         
-        doc.moveTo(40, doc.y + 10)
-           .lineTo(550, doc.y + 10)
+        // Solo dibujar línea divisoria para separar encabezado
+        doc.moveTo(40, y - 10)
+           .lineTo(590, y - 10)
            .lineWidth(1)
-           .stroke('#e0e0e0')
-           .moveDown(1.5);
+           .stroke('#e0e0e0');
         
-        doc.rect(40, doc.y, 550, 25)
-           .fill('#3498db');
+        y = y - 5; // Ajustar posición para que tabla empiece más arriba
         
-        doc.font('Helvetica-Bold')
-           .fontSize(11)
-           .fillColor('#ffffff')
-           .text(table.headers[0], 45, doc.y + 7, { width: table.widths[0], ellipsis: true })
-           .text(table.headers[1], 45 + table.widths[0] + 15, doc.y + 7, { width: table.widths[1], ellipsis: true })
-           .text(table.headers[2], 45 + table.widths[0] + table.widths[1] + 25, doc.y + 7, { width: table.widths[2], ellipsis: true })
-           .text(table.headers[3], 45 + table.widths[0] + table.widths[1] + table.widths[2] + 35, doc.y + 7, { width: table.widths[3], align: 'center', ellipsis: true })
-           .text(table.headers[4], 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 45, doc.y + 7, { width: table.widths[4], align: 'right', ellipsis: true })
-           .text(table.headers[5], 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + 55, doc.y + 7, { width: table.widths[5], ellipsis: true });
-        
-        y = doc.y + 20; // Reducir espacio para tabla
+        // Ajustar anchos de columnas para mejor espacio entre Productos, Cant. y Método Pago
+        table.widths = [70, 150, 90, 50, 80, 100];
       }
 
       const productNames = sale.items.map(item => item.name).join(', ');
