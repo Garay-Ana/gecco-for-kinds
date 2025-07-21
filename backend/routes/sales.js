@@ -165,7 +165,7 @@ router.get('/report', verifyToken, async (req, res) => {
 
       rows.push([
         new Date(sale.saleDate).toLocaleDateString('es-CO'),
-        sale.customerName || 'N/A',
+        sale.sellerName || 'N/A', // Cambiado a vendedor
         productos,
         cantidad,
         new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(sale.total),
@@ -175,7 +175,7 @@ router.get('/report', verifyToken, async (req, res) => {
 
     // Tabla
     const table = {
-      headers: ['Fecha', 'Cliente', 'Productos', 'Cantidad', 'Total', 'Pago'],
+      headers: ['Fecha', 'Vendedor', 'Productos', 'Cantidad', 'Total', 'Método de Pago'], // Cambiado encabezados
       rows
     };
 
@@ -183,9 +183,9 @@ router.get('/report', verifyToken, async (req, res) => {
     await doc.table(table, {
       prepareHeader: () => doc.font('Helvetica-Bold').fontSize(11),
       prepareRow: () => doc.font('Helvetica').fontSize(10),
-      columnSpacing: 5,
-      padding: 5,
-      width: 500
+      columnSpacing: 10,
+      padding: 8,
+      width: 520
     });
 
     // Resumen final
