@@ -6,7 +6,7 @@ const Order = require('../models/Order');
 const Seller = require('../models/Seller');
 const verifyToken = require('../middleware/authMiddleware');
 const PDFDocument = require('pdfkit');
-require('pdfkit-table');
+require('pdfkit-table'); // Confirmar que la librería está importada
 
 // Función para formatear moneda
 function formatCurrency(value) {
@@ -173,13 +173,31 @@ router.get('/report', verifyToken, async (req, res) => {
       ]);
     }
 
-    // Tabla
+    console.log('Cantidad de filas para tabla:', rows.length);
+
+    // Tabla de prueba para verificar doc.table
+    const testTable = {
+      headers: ['Col1', 'Col2', 'Col3'],
+      rows: [
+        ['Dato 1', 'Dato 2', 'Dato 3'],
+        ['Dato 4', 'Dato 5', 'Dato 6']
+      ]
+    };
+
+    await doc.table(testTable, {
+      prepareHeader: () => doc.font('Helvetica-Bold').fontSize(11),
+      prepareRow: () => doc.font('Helvetica').fontSize(10),
+      columnSpacing: 10,
+      padding: 8,
+      width: 520
+    });
+
+    // Tabla real
     const table = {
       headers: ['Fecha', 'Vendedor', 'Productos', 'Cantidad', 'Total', 'Método de Pago'], // Cambiado encabezados
       rows
     };
 
-    // 👇👇 ESTE AWAIT ES OBLIGATORIO
     await doc.table(table, {
       prepareHeader: () => doc.font('Helvetica-Bold').fontSize(11),
       prepareRow: () => doc.font('Helvetica').fontSize(10),
