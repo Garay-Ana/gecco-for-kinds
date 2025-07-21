@@ -369,7 +369,7 @@ router.post('/', verifyToken, async (req, res) => {
     res.status(201).json({ success: true, message: 'Venta registrada correctamente' });
   } catch (error) {
     console.error('Error al registrar venta:', error);
-    res.status(500).json({ success: false, error: 'Error interno al registrar la venta' });
+    res.status(500).json({ success: false, error: 'Error interno al registrar la venta', details: error.message });
   }
 });
 
