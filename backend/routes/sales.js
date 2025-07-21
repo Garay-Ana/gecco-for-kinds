@@ -362,6 +362,13 @@ router.post('/', verifyToken, async (req, res) => {
       });
     }
 
+    // Ajustar saleDate para evitar desfase de zona horaria
+    let adjustedSaleDate = null;
+    if (saleDate) {
+      // Crear fecha con hora fija a mediodía UTC para evitar desfase
+      adjustedSaleDate = new Date(saleDate + 'T12:00:00Z');
+    }
+
     const newOrder = new Order({
       customerName,
       customerPhone,
@@ -370,7 +377,7 @@ router.post('/', verifyToken, async (req, res) => {
       total: Number(totalPrice),
       paymentMethod,
       notes,
-      saleDate: saleDate,
+      saleDate: adjustedSaleDate,
       seller: req.user.id,
       sellerCode: hasSeller === 'Sí' ? sellerCode : null
     });
