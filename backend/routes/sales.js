@@ -6,6 +6,7 @@ const Order = require('../models/Order');
 const Seller = require('../models/Seller');
 const verifyToken = require('../middleware/authMiddleware');
 const PDFDocument = require('pdfkit');
+const { Table } = require('pdfkit-table');
 
 // Función para formatear moneda
 function formatCurrency(value) {
@@ -91,8 +92,11 @@ router.get('/', verifyToken, async (req, res) => {
 });
 
 // Endpoint para generar PDF profesional de reporte de ventas
+
+
+
 router.get('/report', verifyToken, async (req, res) => {
-  console.log('>>> Generando PDF profesional...');
+  console.log('>>> Generando PDF con tabla automática');
 
   try {
     if (req.user.role !== 'seller') {
@@ -116,161 +120,90 @@ router.get('/report', verifyToken, async (req, res) => {
     const sellerName = seller?.name || 'No especificado';
     const sellerCode = seller?.code || 'No especificado';
 
-    const PDFDocument = require('pdfkit');
-    const doc = new PDFDocument({
-      margin: 40,
-      size: 'A4',
-      bufferPages: true
-    });
+    const doc = new PDFDocument({ margin: 40, size: 'A4' });
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
       `attachment; filename=reporte_ventas_${sellerCode}_${new Date().toISOString().split('T')[0]}.pdf`
     );
-
-    doc.on('error', (err) => {
-      console.error('Error en generación de PDF:', err);
-      if (!res.headersSent) {
-        res.status(500).json({ error: 'Error generando PDF' });
-      }
-    });
-
     doc.pipe(res);
 
-    // TÍTULO
-    doc.font('Helvetica-Bold')
-       .fontSize(20)
-       .fillColor('#2c3e50')
-       .text('REPORTE DE VENTAS PROFESIONAL', { align: 'center' })
-       .moveDown(0.5);
+    doc.fontSize(20).font('Helvetica-Bold').text('REPORTE DE VENTAS', { align: 'center' });
+    doc.moveDown(0.5);
+    doc.fontSize(12).font('Helvetica')
+      .text(`Vendedor: ${sellerName}`)
+      .text(`Código: ${sellerCode}`)
+      .moveDown(0.5);
 
-    // INFO VENDEDOR
-    doc.font('Helvetica')
-       .fontSize(12)
-       .fillColor('#34495e')
-       .text(`Vendedor: ${sellerName}`)
-       .text(`Código: ${sellerCode}`)
-       .moveDown(0.5);
-
-    // PERIODO
     if (startDate || endDate) {
       doc.text(`Período: ${startDate || 'Inicio'} - ${endDate || 'Actual'}`);
     }
 
-    doc.moveTo(40, doc.y + 10)
-       .lineTo(550, doc.y + 10)
-       .stroke('#e0e0e0')
-       .moveDown(1.5);
+    doc.moveDown(1);
 
     if (sales.length === 0) {
-      doc.fontSize(14)
-         .fillColor('#7f8c8d')
-         .text('No se encontraron ventas para el período seleccionado', { align: 'center' });
+      doc.fontSize(14).fillColor('#7f8c8d')
+        .text('No se encontraron ventas para el período seleccionado', { align: 'center' });
       doc.end();
-      console.log('>>> PDF generado sin ventas');
       return;
     }
 
-    const formatCurrency = (value) => {
-      return new Intl.NumberFormat('es-CO', {
-        style: 'currency',
-        currency: 'COP',
-        minimumFractionDigits: 0
-      }).format(value);
-    };
-
-    // CONFIG TABLA
-    const headers = ['Fecha', 'Vendedor', 'Productos', 'Cant.', 'Total', 'Pago'];
-    const widths = [70, 150, 100, 40, 80, 100];
-    const startX = 40;
-    let y = doc.y;
-
-    // ENCABEZADO TABLA
-    doc.rect(startX, y, 550, 25).fill('#3498db');
-    doc.fillColor('#ffffff').font('Helvetica-Bold').fontSize(11);
-    let x = startX;
-    headers.forEach((header, i) => {
-      doc.text(header, x + 5, y + 7, { width: widths[i], align: i === 3 ? 'center' : i === 4 ? 'right' : 'left' });
-      x += widths[i];
-    });
-
-    y += 30;
+    const rows = [];
     let totalCantidad = 0;
     let totalVentas = 0;
 
-    sales.forEach((sale, index) => {
-      if (y > 700) {
-        doc.addPage();
-        y = 60;
-      }
-
-      const productNames = sale.items.map(item => item.name).join(', ');
-      const cantidadTotal = sale.items.reduce((sum, item) => sum + item.quantity, 0);
-      totalCantidad += cantidadTotal;
+    sales.forEach(sale => {
+      const productos = sale.items.map(i => i.name).join(', ');
+      const cantidad = sale.items.reduce((s, i) => s + i.quantity, 0);
+      totalCantidad += cantidad;
       totalVentas += sale.total;
-
-      doc.rect(startX, y - 5, 550, 20)
-         .fill(index % 2 === 0 ? '#f8f9fa' : '#ffffff');
-
-      doc.fillColor('#2c3e50').font('Helvetica').fontSize(10);
-
-      const columns = [
+      rows.push([
         new Date(sale.saleDate).toLocaleDateString('es-CO'),
         sale.customerName || 'N/A',
-        productNames,
-        cantidadTotal.toString(),
-        formatCurrency(sale.total),
+        productos,
+        cantidad,
+        new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(sale.total),
         sale.paymentMethod || 'N/A'
-      ];
-
-      x = startX;
-      columns.forEach((text, i) => {
-        doc.text(text, x + 5, y, { width: widths[i], align: i === 3 ? 'center' : i === 4 ? 'right' : 'left' });
-        x += widths[i];
-      });
-
-      y += 20;
+      ]);
     });
 
-    doc.moveTo(startX, y + 10)
-       .lineTo(550, y + 10)
-       .stroke('#e0e0e0');
+    const table = {
+      headers: ['Fecha', 'Cliente', 'Productos', 'Cantidad', 'Total', 'Método'],
+      rows,
+      options: {
+        width: 500,
+        prepareHeader: () => doc.font('Helvetica-Bold').fontSize(11),
+        prepareRow: (row, i) => doc.font('Helvetica').fontSize(10),
+        columnSpacing: 5,
+        padding: 5
+      }
+    };
 
-    // RESUMEN
-    const summaryY = y + 20;
+    await doc.table(table, {
+      columnSpacing: 5,
+      width: 500
+    });
 
-    doc.font('Helvetica-Bold').fontSize(12).fillColor('#2c3e50')
-       .text('RESUMEN FINAL', 400, summaryY, { align: 'right' });
+    doc.moveDown(1.5);
 
-    doc.font('Helvetica-Bold').fontSize(11).fillColor('#2c3e50')
-       .text('Total Ventas: ', 400, summaryY + 20, { align: 'right' })
-       .font('Helvetica').fillColor('#e74c3c')
-       .text(formatCurrency(totalVentas), 505, summaryY + 20, { align: 'right' });
+    doc.font('Helvetica-Bold').fontSize(12).text('RESUMEN FINAL', { align: 'right' });
+    doc.font('Helvetica').fontSize(11)
+      .text(`Total ventas: ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(totalVentas)}`, { align: 'right' })
+      .text(`Ventas realizadas: ${sales.length}`, { align: 'right' })
+      .text(`Productos vendidos: ${totalCantidad}`, { align: 'right' });
 
-    doc.font('Helvetica-Bold').fillColor('#2c3e50')
-       .text('Ventas realizadas: ', 400, summaryY + 40, { align: 'right' })
-       .font('Helvetica').fillColor('#e74c3c')
-       .text(sales.length.toString(), 505, summaryY + 40, { align: 'right' });
-
-    doc.font('Helvetica-Bold').fillColor('#2c3e50')
-       .text('Productos vendidos: ', 400, summaryY + 60, { align: 'right' })
-       .font('Helvetica').fillColor('#e74c3c')
-       .text(totalCantidad.toString(), 505, summaryY + 60, { align: 'right' });
-
-    // FOOTER
     const now = new Date();
     now.setHours(now.getHours() - 5);
-    const date = now.toLocaleDateString('es-CO');
-    const time = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
-
-    doc.moveDown(2).font('Helvetica-Oblique').fontSize(10)
-       .fillColor('#95a5a6')
-       .text(`Reporte generado el ${date} a las ${time}`, { align: 'center' });
+    const fecha = now.toLocaleDateString('es-CO');
+    const hora = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
+    doc.moveDown(2)
+      .fontSize(10)
+      .fillColor('#95a5a6')
+      .text(`Reporte generado el ${fecha} a las ${hora}`, { align: 'center' });
 
     doc.end();
-    console.log('>>> PDF generado correctamente ✅');
-
+    console.log('>>> PDF generado con tabla automática ✅');
   } catch (error) {
     console.error('>>> ERROR generando reporte:', error);
     if (!res.headersSent) {
@@ -278,6 +211,7 @@ router.get('/report', verifyToken, async (req, res) => {
     }
   }
 });
+
 
 
 const Product = require('../models/Product');
