@@ -221,7 +221,7 @@ router.get('/report', verifyToken, async (req, res) => {
         y = y - 5; // Ajustar posición para que tabla empiece más arriba
         
         // Ajustar anchos de columnas para mejor espacio entre Productos, Cant. y Método Pago
-        table.widths = [70, 140, 110, 30, 50, 150]; // Reducir Cantidad para mejorar tabla superior, ajustar Productos y Método Pago
+        table.widths = [70, 150, 100, 40, 60, 130]; // Reducir espacio entre Productos y Cant., ajustar Cant. y Método Pago
       }
 
       const productNames = sale.items.map(item => item.name).join(', ');
@@ -238,6 +238,7 @@ router.get('/report', verifyToken, async (req, res) => {
          .fontSize(10)
          .fillColor('#2c3e50')
          .text(new Date(sale.saleDate).toLocaleDateString('es-CO'), 45, y, { width: table.widths[0] })
+         .text(sale.customerName || 'N/A', 45 + table.widths[0] + 15, y, { width: table.widths[1] })
          .text(productNames, 45 + table.widths[0] + table.widths[1] + 25, y, { width: table.widths[2] })
          .text(cantidadTotal.toString(), 45 + table.widths[0] + table.widths[1] + table.widths[2] + 35, y, { width: table.widths[3], align: 'center' })
          .text(formatCurrency(sale.total), 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 45, y, { width: table.widths[4], align: 'right' })
