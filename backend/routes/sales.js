@@ -157,7 +157,7 @@ router.get('/report', verifyToken, async (req, res) => {
     let totalVentas = 0;
 
     for (const sale of sales) {
-      const productos = sale.items.map(i => i.name).join(', ');
+      const productos = sale.items.map(i => i.product?.name || 'N/A').join(', ');
       const cantidad = sale.items.reduce((s, i) => s + i.quantity, 0);
       totalCantidad += cantidad;
       totalVentas += sale.total;
