@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
@@ -177,7 +178,7 @@ router.get('/report', verifyToken, async (req, res) => {
     // Configuración de la tabla mejorada
     const table = {
       headers: ['Fecha', 'Vendedor', 'Productos', 'Cant.', 'Total', 'Método Pago'],
-      widths: [70, 90, 140, 40, 80, 100],
+      widths: [70, 150, 110, 40, 80, 100], // Aumentar ancho columna Vendedor, reducir Productos
       align: ['left', 'left', 'left', 'center', 'right', 'left'],
       x: 40,
       y: doc.y
@@ -206,11 +207,11 @@ router.get('/report', verifyToken, async (req, res) => {
       // Nueva página si es necesario
       if (y > 700) {
         doc.addPage();
-        y = 40;
+        y = 60; // Ajuste para que la tabla empiece más arriba
         
         // Repetir encabezados en nueva página
         doc.font('Helvetica-Bold')
-           .fontSize(20)
+           .fontSize(18) // Reducir tamaño para mejor ajuste
            .fillColor('#2c3e50')
            .text('REPORTE DE VENTAS (Continuación)', { align: 'center' })
            .moveDown(0.5);
@@ -227,14 +228,14 @@ router.get('/report', verifyToken, async (req, res) => {
         doc.font('Helvetica-Bold')
            .fontSize(11)
            .fillColor('#ffffff')
-           .text(table.headers[0], 45, doc.y + 7, { width: table.widths[0] })
-           .text(table.headers[1], 45 + table.widths[0] + 15, doc.y + 7, { width: table.widths[1] })
-           .text(table.headers[2], 45 + table.widths[0] + table.widths[1] + 25, doc.y + 7, { width: table.widths[2] })
-           .text(table.headers[3], 45 + table.widths[0] + table.widths[1] + table.widths[2] + 35, doc.y + 7, { width: table.widths[3], align: 'center' })
-           .text(table.headers[4], 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 45, doc.y + 7, { width: table.widths[4], align: 'right' })
-           .text(table.headers[5], 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + 55, doc.y + 7, { width: table.widths[5] });
+           .text(table.headers[0], 45, doc.y + 7, { width: table.widths[0], ellipsis: true })
+           .text(table.headers[1], 45 + table.widths[0] + 15, doc.y + 7, { width: table.widths[1], ellipsis: true })
+           .text(table.headers[2], 45 + table.widths[0] + table.widths[1] + 25, doc.y + 7, { width: table.widths[2], ellipsis: true })
+           .text(table.headers[3], 45 + table.widths[0] + table.widths[1] + table.widths[2] + 35, doc.y + 7, { width: table.widths[3], align: 'center', ellipsis: true })
+           .text(table.headers[4], 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 45, doc.y + 7, { width: table.widths[4], align: 'right', ellipsis: true })
+           .text(table.headers[5], 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + 55, doc.y + 7, { width: table.widths[5], ellipsis: true });
         
-        y = doc.y + 30;
+        y = doc.y + 20; // Reducir espacio para tabla
       }
 
       const productNames = sale.items.map(item => item.name).join(', ');
@@ -302,9 +303,11 @@ router.get('/report', verifyToken, async (req, res) => {
        .text(totalCantidad.toString(), 505, summaryY + 60, { width: 80, align: 'right', lineBreak: false });
 
     // MEJORA: Pie de página en una sola línea
+    // Ajustar hora restando 5 horas para zona horaria Colombia (UTC-5)
     const now = new Date();
-    const optionsDate = { timeZone: 'America/Bogota', year: 'numeric', month: 'numeric', day: 'numeric' };
-    const optionsTime = { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', hour12: true };
+    now.setHours(now.getHours() - 5);
+    const optionsDate = { year: 'numeric', month: 'numeric', day: 'numeric' };
+    const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true };
     const formattedDate = new Intl.DateTimeFormat('es-CO', optionsDate).format(now);
     const formattedTime = new Intl.DateTimeFormat('es-CO', optionsTime).format(now);
     const footerText = `Reporte generado el ${formattedDate} a las ${formattedTime}`;
