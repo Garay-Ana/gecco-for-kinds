@@ -368,7 +368,7 @@ router.post('/', verifyToken, async (req, res) => {
     // Crear nuevo pedido (Order)
     const newOrder = new Order({
       seller: req.user.id,
-      saleDate: new Date(saleDate),
+      saleDate: saleDate,
       customerName,
       customerPhone,
       items,
