@@ -12,7 +12,7 @@ export default function RegisterAdmin() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/auth/register-admin', {
+      await axios.post('https://gecco-for-kinds.onrender.com/api/auth/register-admin', {
         email,
         password
       });

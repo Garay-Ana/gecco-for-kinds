@@ -34,14 +34,14 @@ export default function SellerPanel() {
   };
 
   const fetchClients = async () => {
-    const res = await axios.get('http://localhost:5000/api/sellers/clients', {
+    const res = await axios.get('https://gecco-for-kinds.onrender.com/api/sellers/clients', {
       headers: { Authorization: `Bearer ${token}` }
     });
     setClients(res.data);
   };
 
   const fetchSummary = async () => {
-    const res = await axios.get('http://localhost:5000/api/sellers/zone-summary', {
+    const res = await axios.get('https://gecco-for-kinds.onrender.com/api/sellers/zone-summary', {
       headers: { Authorization: `Bearer ${token}` }
     });
     console.log('zone-summary data:', res.data);
@@ -56,14 +56,14 @@ export default function SellerPanel() {
     try {
       if (editingId) {
         await axios.put(
-          `http://localhost:5000/api/sellers/clients/${editingId}`,
+          `https://gecco-for-kinds.onrender.com/api/sellers/clients/${editingId}`,
           form,
           { headers: { Authorization: `Bearer ${token}` } }
         );
           setMsg({ text: 'Vendedor actualizado con éxito', type: 'success' });
       } else {
         await axios.post(
-          'http://localhost:5000/api/sellers/clients',
+          'https://gecco-for-kinds.onrender.com/api/sellers/clients',
           form,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -101,7 +101,7 @@ export default function SellerPanel() {
     
     try {
       await axios.delete(
-        `http://localhost:5000/api/sellers/clients/${id}`,
+        `https://gecco-for-kinds.onrender.com/api/sellers/clients/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setMsg({ text: 'Vendedor eliminado con éxito', type: 'success' });
@@ -122,7 +122,7 @@ export default function SellerPanel() {
     
     try {
       const res = await axios.post(
-        'http://localhost:5000/api/upload-client',
+        'https://gecco-for-kinds.onrender.com/api/upload-client',
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -321,7 +321,7 @@ export default function SellerPanel() {
                 {form.image && (
                   <div className="file-preview">
                     <img
-                      src={`http://localhost:5000${form.image}`}
+                      src={`https://gecco-for-kinds.onrender.com${form.image}`}
                       alt="Previsualización"
                       className="uploaded-image"
                     />

@@ -14,7 +14,7 @@ export default function SellerRegister() {
     setMsg('');
     setSuccess(false);
     try {
-      await axios.post('http://localhost:5000/api/sellers/register', form);
+      await axios.post('https://gecco-for-kinds.onrender.com/api/sellers/register', form);
       setMsg('Vendedor registrado correctamente');
       setSuccess(true);
       setTimeout(() => navigate('/seller/login'), 1200);

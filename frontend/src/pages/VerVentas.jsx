@@ -48,7 +48,7 @@ export default function VerVentas() {
       if (filters.startDate) params.startDate = filters.startDate;
       if (filters.endDate) params.endDate = filters.endDate;
 
-      const res = await axios.get('http://localhost:5000/api/sales', {
+      const res = await axios.get('https://gecco-for-kinds.onrender.com/api/sales', {
         headers: { Authorization: `Bearer ${token}` },
         params
       });
@@ -101,7 +101,7 @@ export default function VerVentas() {
         endDate: filters.endDate || undefined
       };
 
-      const response = await axios.get('http://localhost:5000/api/sales/report', {
+      const response = await axios.get('https://gecco-for-kinds.onrender.com/api/sales/report', {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Cache-Control': 'no-cache'

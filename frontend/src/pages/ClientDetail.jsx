@@ -20,7 +20,7 @@ export default function ClientDetail() {
       setLoading(true);
       const clientId = window.location.pathname.split('/').pop();
 const res = await axios.get(
-  `http://localhost:5000/api/sellers/clients/${clientId}`,
+  `https://gecco-for-kinds.onrender.com/api/sellers/clients/${clientId}`,
   { headers: { Authorization: `Bearer ${token}` } }
 );
       setClient(res.data);

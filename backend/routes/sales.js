@@ -322,4 +322,55 @@ router.get('/report', verifyToken, async (req, res) => {
   }
 });
 
+router.post('/', verifyToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'seller') {
+      return res.status(403).json({ success: false, error: 'No autorizado' });
+    }
+
+    const {
+      saleDate,
+      customerName,
+      customerPhone,
+      products,
+      quantity,
+      totalPrice,
+      hasSeller,
+      sellerCode,
+      paymentMethod,
+      notes,
+      address
+    } = req.body;
+
+    if (!saleDate || !customerName || !products || !quantity || !totalPrice) {
+      return res.status(400).json({ success: false, error: 'Faltan campos obligatorios' });
+    }
+
+    // Crear nuevo pedido (Order)
+    const newOrder = new Order({
+      seller: req.user.id,
+      saleDate: new Date(saleDate),
+      customerName,
+      customerPhone,
+      items: products.split(',').map((product) => ({
+        name: product.trim(),
+        quantity: Number(quantity)
+      })),
+      total: Number(totalPrice),
+      hasSeller,
+      sellerCode,
+      paymentMethod,
+      notes,
+      address
+    });
+
+    await newOrder.save();
+
+    res.status(201).json({ success: true, message: 'Venta registrada correctamente' });
+  } catch (error) {
+    console.error('Error al registrar venta:', error);
+    res.status(500).json({ success: false, error: 'Error interno al registrar la venta' });
+  }
+});
+
 module.exports = router;

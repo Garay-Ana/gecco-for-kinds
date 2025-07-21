@@ -23,7 +23,7 @@ export default function ProductDetails() {
       return;
     }
     try {
-      const response = await axios.get(`http://localhost:5000/api/sellers/${code.toUpperCase()}`);
+      const response = await axios.get(`https://gecco-for-kinds.onrender.com/api/sellers/${code.toUpperCase()}`);
       if (response.data) {
         setSellerCodeMsg('');
         setIsSellerCodeValid(true);
@@ -49,7 +49,7 @@ export default function ProductDetails() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/products/${id}`);
+        const response = await axios.get(`https://gecco-for-kinds.onrender.com/api/products/${id}`);
         setProduct(response.data);
       } catch (err) {
         setError('No se pudo cargar el producto. Por favor intenta nuevamente.');

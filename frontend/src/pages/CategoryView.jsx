@@ -24,7 +24,7 @@ export default function CategoryView() {
     const params = new URLSearchParams();
     params.append('category', categoryParam === 'ropa para nino' ? 'Ropa para Niño' : categoryParam === 'ropa para nina' ? 'Ropa para Niña' : nombre.replace(/-/g, ' '));
     if (search.trim()) params.append('search', search.trim());
-    axios.get(`http://localhost:5000/api/products?${params.toString()}`)
+    axios.get(`https://gecco-for-kinds.onrender.com/api/products?${params.toString()}`)
       .then(res => {
         setProducts(res.data);
         setIsLoading(false);

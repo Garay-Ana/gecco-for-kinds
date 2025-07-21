@@ -41,7 +41,7 @@ export default function EVentas() {
       const adjustedSaleDate = form.saleDate || null;
 
       await axios.post(
-        'http://localhost:5000/api/sales',
+        'https://gecco-for-kinds.onrender.com/api/sales',
         {
           ...form,
           saleDate: adjustedSaleDate,

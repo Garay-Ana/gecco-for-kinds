@@ -92,7 +92,7 @@ export default function Home() {
     if (trimmedSearch.length > 0) {
       params.append('search', trimmedSearch);
     }
-    const url = `http://localhost:5000/api/products${params.toString() ? '?' + params.toString() : ''}`;
+    const url = `https://gecco-for-kinds.onrender.com/api/products${params.toString() ? '?' + params.toString() : ''}`;
     axios.get(url)
       .then(res => {
         setProducts(res.data);

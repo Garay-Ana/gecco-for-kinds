@@ -25,7 +25,7 @@ export default function SellerProfile() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/sellers/profile', { 
+      const res = await axios.get('https://gecco-for-kinds.onrender.com/api/sellers/profile', { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       setSeller(res.data);
@@ -49,7 +49,7 @@ export default function SellerProfile() {
 
     try {
       await axios.put(
-        'http://localhost:5000/api/sellers/change-password', 
+        'https://gecco-for-kinds.onrender.com/api/sellers/change-password', 
         { password }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
