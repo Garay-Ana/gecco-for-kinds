@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const Seller = require('../models/Seller');
 const verifyToken = require('../middleware/authMiddleware');
@@ -259,7 +260,7 @@ router.get('/report', verifyToken, async (req, res) => {
       y += 20;
     });
 
-        // Línea divisoria antes de los totales
+    // Línea divisoria antes de los totales
     doc.moveTo(40, y + 10)
        .lineTo(550, y + 10)
        .lineWidth(1)
@@ -322,12 +323,10 @@ router.get('/report', verifyToken, async (req, res) => {
   }
 });
 
+const Product = require('../models/Product');
+
 router.post('/', verifyToken, async (req, res) => {
   try {
-    if (req.user.role !== 'seller') {
-      return res.status(403).json({ success: false, error: 'No autorizado' });
-    }
-
     const {
       saleDate,
       customerName,
@@ -342,11 +341,9 @@ router.post('/', verifyToken, async (req, res) => {
       address
     } = req.body;
 
-    if (!saleDate || !customerName || !products || !quantity || !totalPrice) {
-      return res.status(400).json({ success: false, error: 'Faltan campos obligatorios' });
+    if (!customerName || !products || !quantity || !totalPrice) {
+      return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
-
-    const Product = require('../models/Product');
 
     // Crear items con product ObjectId
     const productNames = products.split(',').map(p => p.trim());
@@ -365,27 +362,25 @@ router.post('/', verifyToken, async (req, res) => {
       });
     }
 
-    // Crear nuevo pedido (Order)
     const newOrder = new Order({
-      seller: req.user.id,
-      saleDate: saleDate,
       customerName,
       customerPhone,
+      address: address || 'No especificada',
       items,
       total: Number(totalPrice),
-      hasSeller,
-      sellerCode,
       paymentMethod,
       notes,
-      address
+      saleDate: saleDate,
+      seller: req.user.id,
+      sellerCode: hasSeller === 'Sí' ? sellerCode : null
     });
 
     await newOrder.save();
 
     res.status(201).json({ success: true, message: 'Venta registrada correctamente' });
   } catch (error) {
-    console.error('Error al registrar venta:', error);
-    res.status(500).json({ success: false, error: 'Error interno al registrar la venta', details: error.message });
+    console.error('Error al registrar la venta:', error);
+    res.status(500).json({ error: 'Error al registrar la venta' });
   }
 });
 
