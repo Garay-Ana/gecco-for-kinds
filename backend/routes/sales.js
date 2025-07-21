@@ -6,7 +6,7 @@ const Order = require('../models/Order');
 const Seller = require('../models/Seller');
 const verifyToken = require('../middleware/authMiddleware');
 const PDFDocument = require('pdfkit');
-const { Table } = require('pdfkit-table');
+require('pdfkit-table');
 
 // Función para formatear moneda
 function formatCurrency(value) {
