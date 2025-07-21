@@ -96,7 +96,7 @@ router.get('/', verifyToken, async (req, res) => {
 
 
 router.get('/report', verifyToken, async (req, res) => {
-  console.log('>>> Generando PDF con tabla automática');
+  console.log('>>> Generando PDF con tabla');
 
   try {
     if (req.user.role !== 'seller') {
@@ -127,10 +127,11 @@ router.get('/report', verifyToken, async (req, res) => {
       'Content-Disposition',
       `attachment; filename=reporte_ventas_${sellerCode}_${new Date().toISOString().split('T')[0]}.pdf`
     );
+
     doc.pipe(res);
 
-    doc.fontSize(20).font('Helvetica-Bold').text('REPORTE DE VENTAS', { align: 'center' });
-    doc.moveDown(0.5);
+    // Encabezado
+    doc.fontSize(20).font('Helvetica-Bold').text('REPORTE DE VENTAS', { align: 'center' }).moveDown(0.5);
     doc.fontSize(12).font('Helvetica')
       .text(`Vendedor: ${sellerName}`)
       .text(`Código: ${sellerCode}`)
@@ -142,22 +143,26 @@ router.get('/report', verifyToken, async (req, res) => {
 
     doc.moveDown(1);
 
-    if (sales.length === 0) {
+    // Validar si hay ventas
+    if (!sales.length) {
       doc.fontSize(14).fillColor('#7f8c8d')
         .text('No se encontraron ventas para el período seleccionado', { align: 'center' });
       doc.end();
+      console.log('>>> Sin ventas para mostrar');
       return;
     }
 
+    // Preparar filas
     const rows = [];
     let totalCantidad = 0;
     let totalVentas = 0;
 
-    sales.forEach(sale => {
+    for (const sale of sales) {
       const productos = sale.items.map(i => i.name).join(', ');
       const cantidad = sale.items.reduce((s, i) => s + i.quantity, 0);
       totalCantidad += cantidad;
       totalVentas += sale.total;
+
       rows.push([
         new Date(sale.saleDate).toLocaleDateString('es-CO'),
         sale.customerName || 'N/A',
@@ -166,44 +171,45 @@ router.get('/report', verifyToken, async (req, res) => {
         new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(sale.total),
         sale.paymentMethod || 'N/A'
       ]);
-    });
+    }
 
+    // Tabla
     const table = {
-      headers: ['Fecha', 'Cliente', 'Productos', 'Cantidad', 'Total', 'Método'],
-      rows,
-      options: {
-        width: 500,
-        prepareHeader: () => doc.font('Helvetica-Bold').fontSize(11),
-        prepareRow: (row, i) => doc.font('Helvetica').fontSize(10),
-        columnSpacing: 5,
-        padding: 5
-      }
+      headers: ['Fecha', 'Cliente', 'Productos', 'Cantidad', 'Total', 'Pago'],
+      rows
     };
 
+    // 👇👇 ESTE AWAIT ES OBLIGATORIO
     await doc.table(table, {
+      prepareHeader: () => doc.font('Helvetica-Bold').fontSize(11),
+      prepareRow: () => doc.font('Helvetica').fontSize(10),
       columnSpacing: 5,
+      padding: 5,
       width: 500
     });
 
+    // Resumen final
     doc.moveDown(1.5);
-
     doc.font('Helvetica-Bold').fontSize(12).text('RESUMEN FINAL', { align: 'right' });
     doc.font('Helvetica').fontSize(11)
       .text(`Total ventas: ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(totalVentas)}`, { align: 'right' })
       .text(`Ventas realizadas: ${sales.length}`, { align: 'right' })
       .text(`Productos vendidos: ${totalCantidad}`, { align: 'right' });
 
+    // Pie de página
     const now = new Date();
     now.setHours(now.getHours() - 5);
     const fecha = now.toLocaleDateString('es-CO');
     const hora = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
+
     doc.moveDown(2)
       .fontSize(10)
       .fillColor('#95a5a6')
       .text(`Reporte generado el ${fecha} a las ${hora}`, { align: 'center' });
 
     doc.end();
-    console.log('>>> PDF generado con tabla automática ✅');
+    console.log('>>> PDF generado con tabla correctamente ✅');
+
   } catch (error) {
     console.error('>>> ERROR generando reporte:', error);
     if (!res.headersSent) {
@@ -211,6 +217,7 @@ router.get('/report', verifyToken, async (req, res) => {
     }
   }
 });
+
 
 
 
