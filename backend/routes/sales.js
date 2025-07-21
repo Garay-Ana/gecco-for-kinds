@@ -346,16 +346,32 @@ router.post('/', verifyToken, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Faltan campos obligatorios' });
     }
 
+    const Product = require('../models/Product');
+
+    // Crear items con product ObjectId
+    const productNames = products.split(',').map(p => p.trim());
+    const items = [];
+
+    for (const name of productNames) {
+      const productDoc = await Product.findOne({ name: new RegExp('^' + name + '$', 'i') });
+      if (!productDoc) {
+        return res.status(400).json({ success: false, error: `Producto no encontrado: ${name}` });
+      }
+      items.push({
+        product: productDoc._id,
+        name: productDoc.name,
+        quantity: Number(quantity),
+        price: productDoc.price || 0
+      });
+    }
+
     // Crear nuevo pedido (Order)
     const newOrder = new Order({
       seller: req.user.id,
       saleDate: new Date(saleDate),
       customerName,
       customerPhone,
-      items: products.split(',').map((product) => ({
-        name: product.trim(),
-        quantity: Number(quantity)
-      })),
+      items,
       total: Number(totalPrice),
       hasSeller,
       sellerCode,
