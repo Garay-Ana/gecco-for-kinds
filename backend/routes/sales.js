@@ -96,7 +96,7 @@ router.get('/', verifyToken, async (req, res) => {
 
 
 router.get('/report', verifyToken, async (req, res) => {
-  console.log('>>> Generando PDF con tabla');
+  console.log('>>> Generando PDF con tabla (versión 0.1.99)');
 
   try {
     if (req.user.role !== 'seller') {
@@ -130,7 +130,7 @@ router.get('/report', verifyToken, async (req, res) => {
 
     doc.pipe(res);
 
-    // Encabezado
+    // Título y encabezado
     doc.fontSize(20).font('Helvetica-Bold').text('REPORTE DE VENTAS', { align: 'center' }).moveDown(0.5);
     doc.fontSize(12).font('Helvetica')
       .text(`Vendedor: ${sellerName}`)
@@ -143,7 +143,6 @@ router.get('/report', verifyToken, async (req, res) => {
 
     doc.moveDown(1);
 
-    // Validar si hay ventas
     if (!sales.length) {
       doc.fontSize(14).fillColor('#7f8c8d')
         .text('No se encontraron ventas para el período seleccionado', { align: 'center' });
@@ -152,7 +151,7 @@ router.get('/report', verifyToken, async (req, res) => {
       return;
     }
 
-    // Preparar filas
+    // Datos de tabla
     const rows = [];
     let totalCantidad = 0;
     let totalVentas = 0;
@@ -165,7 +164,7 @@ router.get('/report', verifyToken, async (req, res) => {
 
       rows.push([
         new Date(sale.saleDate).toLocaleDateString('es-CO'),
-        sale.sellerName || 'N/A', // Cambiado a vendedor
+        sale.customerName || 'N/A',
         productos,
         cantidad,
         new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(sale.total),
@@ -173,40 +172,21 @@ router.get('/report', verifyToken, async (req, res) => {
       ]);
     }
 
-    console.log('Cantidad de filas para tabla:', rows.length);
-
-    // Tabla de prueba para verificar doc.table
-    const testTable = {
-      headers: ['Col1', 'Col2', 'Col3'],
-      rows: [
-        ['Dato 1', 'Dato 2', 'Dato 3'],
-        ['Dato 4', 'Dato 5', 'Dato 6']
-      ]
-    };
-
-    await doc.table(testTable, {
-      prepareHeader: () => doc.font('Helvetica-Bold').fontSize(11),
-      prepareRow: () => doc.font('Helvetica').fontSize(10),
-      columnSpacing: 10,
-      padding: 8,
-      width: 520
-    });
-
-    // Tabla real
     const table = {
-      headers: ['Fecha', 'Vendedor', 'Productos', 'Cantidad', 'Total', 'Método de Pago'], // Cambiado encabezados
+      headers: ['Fecha', 'Cliente', 'Productos', 'Cantidad', 'Total', 'Pago'],
       rows
     };
 
-    await doc.table(table, {
+    // 👇 Versión 0.1.99 NO usa `await`
+    doc.table(table, {
       prepareHeader: () => doc.font('Helvetica-Bold').fontSize(11),
       prepareRow: () => doc.font('Helvetica').fontSize(10),
-      columnSpacing: 10,
-      padding: 8,
-      width: 520
+      columnSpacing: 5,
+      padding: 5,
+      width: 500
     });
 
-    // Resumen final
+    // Resumen
     doc.moveDown(1.5);
     doc.font('Helvetica-Bold').fontSize(12).text('RESUMEN FINAL', { align: 'right' });
     doc.font('Helvetica').fontSize(11)
@@ -214,7 +194,7 @@ router.get('/report', verifyToken, async (req, res) => {
       .text(`Ventas realizadas: ${sales.length}`, { align: 'right' })
       .text(`Productos vendidos: ${totalCantidad}`, { align: 'right' });
 
-    // Pie de página
+    // Pie
     const now = new Date();
     now.setHours(now.getHours() - 5);
     const fecha = now.toLocaleDateString('es-CO');
