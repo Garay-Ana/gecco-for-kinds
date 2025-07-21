@@ -22,8 +22,19 @@ export default function VerVentas() {
 
   const formatDateAdjusted = (dateString) => {
     if (!dateString) return '';
-    // Interpretar la fecha como UTC para evitar desfase
-    const d = new Date(dateString + 'T00:00:00Z');
+    let d;
+    if (typeof dateString === 'string') {
+      if (dateString.includes('T')) {
+        d = new Date(dateString);
+      } else {
+        d = new Date(dateString + 'T00:00:00Z');
+      }
+    } else {
+      d = new Date(dateString);
+    }
+    if (isNaN(d.getTime())) {
+      return 'Fecha inválida';
+    }
     return d.toLocaleDateString('es-CO');
   };
 

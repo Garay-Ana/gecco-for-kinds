@@ -365,8 +365,13 @@ router.post('/', verifyToken, async (req, res) => {
     // Ajustar saleDate para evitar desfase de zona horaria
     let adjustedSaleDate = null;
     if (saleDate) {
-      // Crear fecha con hora fija a mediodía UTC para evitar desfase
-      adjustedSaleDate = new Date(saleDate + 'T12:00:00Z');
+      // Si saleDate es string en formato ISO o fecha, crear objeto Date directamente
+      if (typeof saleDate === 'string' && !saleDate.includes('T')) {
+        // Si no tiene hora, agregar mediodía UTC para evitar desfase
+        adjustedSaleDate = new Date(saleDate + 'T12:00:00Z');
+      } else {
+        adjustedSaleDate = new Date(saleDate);
+      }
     }
 
     const newOrder = new Order({
