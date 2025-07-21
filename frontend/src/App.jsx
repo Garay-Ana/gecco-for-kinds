@@ -18,6 +18,8 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/privatevendor" element={<Home />} />
+      <Route path="/privateadmin" element={<Home />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/panel" element={<AdminPanel />} />
       <Route path="/admin/register" element={<RegisterAdmin />} />

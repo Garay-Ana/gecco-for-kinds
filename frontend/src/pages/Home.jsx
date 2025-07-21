@@ -38,6 +38,8 @@ export default function Home() {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+const svendor= location.pathname === '/privatevendor';
+const sadmin= location.pathname === '/privateadmin';
 
   // Sincronizar selectedCategory con la URL
   useEffect(() => {
@@ -165,24 +167,31 @@ export default function Home() {
               </span>
             )}
           </div>
+         {(sadmin || svendor) && (
           <div className="header-buttons">
-            <Link to="/admin/login">
-              <button className="header-button admin">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                </svg>
-                Admin
-              </button>
-            </Link>
-            <Link to="/seller/login">
-              <button className="header-button register">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6z" />
-                </svg>
-                Vendedor
-              </button>
-            </Link>
+            {sadmin && (
+              <Link to="/admin/login">
+                <button className="header-button admin">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                  Admin
+                </button>
+              </Link>
+            )}
+
+            {svendor && (
+              <Link to="/seller/login">
+                <button className="header-button register">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6z" />
+                  </svg>
+                  Vendedor
+                </button>
+              </Link>
+            )}
           </div>
+        )}
         </div>
       </header>
 
