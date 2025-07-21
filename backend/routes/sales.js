@@ -221,7 +221,7 @@ router.get('/report', verifyToken, async (req, res) => {
         y = y - 5; // Ajustar posición para que tabla empiece más arriba
         
         // Ajustar anchos de columnas para mejor espacio entre Productos, Cant. y Método Pago
-        table.widths = [70, 140, 100, 40, 50, 150]; // Reducir Productos y Total, aumentar Método Pago para mejor lectura
+        table.widths = [70, 140, 110, 30, 50, 150]; // Reducir Cantidad para mejorar tabla superior, ajustar Productos y Método Pago
       }
 
       const productNames = sale.items.map(item => item.name).join(', ');
