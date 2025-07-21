@@ -363,6 +363,16 @@
   font-weight: 500;
   position: sticky;
   top: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+.sales-table td {
+  padding: 15px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .sales-table td {

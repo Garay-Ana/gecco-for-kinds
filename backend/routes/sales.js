@@ -174,10 +174,10 @@ router.get('/report', verifyToken, async (req, res) => {
       return;
     }
 
-    // Configuración de la tabla mejorada con columna de vendedor más ancha
+    // Configuración de la tabla mejorada
     const table = {
-      headers: ['Fecha', 'Cliente', 'Productos', 'Cant.', 'Total', 'Método Pago'],
-      widths: [70, 120, 110, 40, 80, 100], // Aumenté el ancho de la columna Cliente de 90 a 120
+      headers: ['Fecha', 'Vendedor', 'Productos', 'Cant.', 'Total', 'Método Pago'],
+      widths: [70, 90, 140, 40, 80, 100],
       align: ['left', 'left', 'left', 'center', 'right', 'left'],
       x: 40,
       y: doc.y
@@ -191,11 +191,11 @@ router.get('/report', verifyToken, async (req, res) => {
        .fontSize(11)
        .fillColor('#ffffff')
        .text(table.headers[0], table.x + 5, table.y + 7, { width: table.widths[0] })
-       .text(table.headers[1], table.x + table.widths[0] + 10, table.y + 7, { width: table.widths[1] }) // Reduje el espacio entre columnas
-       .text(table.headers[2], table.x + table.widths[0] + table.widths[1] + 20, table.y + 7, { width: table.widths[2] })
-       .text(table.headers[3], table.x + table.widths[0] + table.widths[1] + table.widths[2] + 30, table.y + 7, { width: table.widths[3], align: 'center' })
-       .text(table.headers[4], table.x + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 40, table.y + 7, { width: table.widths[4], align: 'right' })
-       .text(table.headers[5], table.x + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + 50, table.y + 7, { width: table.widths[5] });
+       .text(table.headers[1], table.x + table.widths[0] + 15, table.y + 7, { width: table.widths[1] })
+       .text(table.headers[2], table.x + table.widths[0] + table.widths[1] + 25, table.y + 7, { width: table.widths[2] })
+       .text(table.headers[3], table.x + table.widths[0] + table.widths[1] + table.widths[2] + 35, table.y + 7, { width: table.widths[3], align: 'center' })
+       .text(table.headers[4], table.x + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 45, table.y + 7, { width: table.widths[4], align: 'right' })
+       .text(table.headers[5], table.x + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + 55, table.y + 7, { width: table.widths[5] });
 
     let y = table.y + 30;
     let totalCantidad = 0;
@@ -228,11 +228,11 @@ router.get('/report', verifyToken, async (req, res) => {
            .fontSize(11)
            .fillColor('#ffffff')
            .text(table.headers[0], 45, doc.y + 7, { width: table.widths[0] })
-           .text(table.headers[1], 45 + table.widths[0] + 10, doc.y + 7, { width: table.widths[1] })
-           .text(table.headers[2], 45 + table.widths[0] + table.widths[1] + 20, doc.y + 7, { width: table.widths[2] })
-           .text(table.headers[3], 45 + table.widths[0] + table.widths[1] + table.widths[2] + 30, doc.y + 7, { width: table.widths[3], align: 'center' })
-           .text(table.headers[4], 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 40, doc.y + 7, { width: table.widths[4], align: 'right' })
-           .text(table.headers[5], 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + 50, doc.y + 7, { width: table.widths[5] });
+           .text(table.headers[1], 45 + table.widths[0] + 15, doc.y + 7, { width: table.widths[1] })
+           .text(table.headers[2], 45 + table.widths[0] + table.widths[1] + 25, doc.y + 7, { width: table.widths[2] })
+           .text(table.headers[3], 45 + table.widths[0] + table.widths[1] + table.widths[2] + 35, doc.y + 7, { width: table.widths[3], align: 'center' })
+           .text(table.headers[4], 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 45, doc.y + 7, { width: table.widths[4], align: 'right' })
+           .text(table.headers[5], 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + 55, doc.y + 7, { width: table.widths[5] });
         
         y = doc.y + 30;
       }
@@ -251,11 +251,11 @@ router.get('/report', verifyToken, async (req, res) => {
          .fontSize(10)
          .fillColor('#2c3e50')
          .text(new Date(sale.saleDate).toLocaleDateString('es-CO'), 45, y, { width: table.widths[0] })
-         .text(sale.customerName || 'N/A', 45 + table.widths[0] + 10, y, { width: table.widths[1] }) // Ajuste para columna más ancha
-         .text(productNames, 45 + table.widths[0] + table.widths[1] + 20, y, { width: table.widths[2] })
-         .text(cantidadTotal.toString(), 45 + table.widths[0] + table.widths[1] + table.widths[2] + 30, y, { width: table.widths[3], align: 'center' })
-         .text(formatCurrency(sale.total), 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 40, y, { width: table.widths[4], align: 'right' })
-         .text(sale.paymentMethod || 'N/A', 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + 50, y, { width: table.widths[5] });
+         .text(sale.customerName || 'N/A', 45 + table.widths[0] + 15, y, { width: table.widths[1] })
+         .text(productNames, 45 + table.widths[0] + table.widths[1] + 25, y, { width: table.widths[2] })
+         .text(cantidadTotal.toString(), 45 + table.widths[0] + table.widths[1] + table.widths[2] + 35, y, { width: table.widths[3], align: 'center' })
+         .text(formatCurrency(sale.total), 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 45, y, { width: table.widths[4], align: 'right' })
+         .text(sale.paymentMethod || 'N/A', 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + 55, y, { width: table.widths[5] });
 
       y += 20;
     });
@@ -267,52 +267,53 @@ router.get('/report', verifyToken, async (req, res) => {
        .stroke('#e0e0e0')
        .moveDown(1);
 
-    // Sección de resumen según la imagen de referencia
+    // MEJORA: Sección de resumen mejor organizada
     const summaryY = y + 20;
     
-    // Título de resumen con estilo similar a la imagen
-    doc.font('Helvetica-Bold')
-       .fontSize(14)
-       .fillColor('#000000')
-       .text('RESUMEN FINAL', 40, summaryY);
-    
-    // Línea debajo del título
-    doc.moveTo(40, summaryY + 20)
-       .lineTo(150, summaryY + 20)
-       .lineWidth(1)
-       .stroke('#000000');
-    
-    // Total Ventas - formato similar a la imagen
+    // Título de resumen
     doc.font('Helvetica-Bold')
        .fontSize(12)
-       .fillColor('#000000')
-       .text('Total:', 40, summaryY + 30)
-       .font('Helvetica')
-       .text(formatCurrency(totalVentas), 120, summaryY + 30);
+       .fillColor('#2c3e50')
+       .text('RESUMEN FINAL', 400, summaryY, { align: 'right', width: 150, lineBreak: false });
     
-    // Ventas realizadas
+    // Total Ventas - en una sola línea
     doc.font('Helvetica-Bold')
-       .text('Ventas realizadas:', 40, summaryY + 50)
+       .fontSize(11)
+       .fillColor('#2c3e50')
+       .text('Total Ventas: ', 400, summaryY + 20, { width: 100, align: 'right', lineBreak: false })
        .font('Helvetica')
-       .text(sales.length.toString(), 120, summaryY + 50);
+       .fillColor('#e74c3c')
+       .text(formatCurrency(totalVentas), 505, summaryY + 20, { width: 80, align: 'right', lineBreak: false });
     
-    // Productos vendidos
+    // Ventas realizadas - en una sola línea
     doc.font('Helvetica-Bold')
-       .text('Productos vendidos:', 40, summaryY + 70)
+       .fillColor('#2c3e50')
+       .text('Ventas realizadas: ', 400, summaryY + 40, { width: 100, align: 'right', lineBreak: false })
        .font('Helvetica')
-       .text(totalCantidad.toString(), 120, summaryY + 70);
+       .fillColor('#e74c3c')
+       .text(sales.length.toString(), 505, summaryY + 40, { width: 80, align: 'right', lineBreak: false });
+    
+    // Productos vendidos - en una sola línea
+    doc.font('Helvetica-Bold')
+       .fillColor('#2c3e50')
+       .text('Productos vendidos: ', 400, summaryY + 60, { width: 100, align: 'right', lineBreak: false })
+       .font('Helvetica')
+       .fillColor('#e74c3c')
+       .text(totalCantidad.toString(), 505, summaryY + 60, { width: 80, align: 'right', lineBreak: false });
 
-    // Pie de página
-    const footerText = `Reporte generado el ${new Date().toLocaleDateString('es-CO')} a las ${new Date().toLocaleTimeString('es-CO', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })}`;
+    // MEJORA: Pie de página en una sola línea
+    const now = new Date();
+    const optionsDate = { timeZone: 'America/Bogota', year: 'numeric', month: 'numeric', day: 'numeric' };
+    const optionsTime = { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', hour12: true };
+    const formattedDate = new Intl.DateTimeFormat('es-CO', optionsDate).format(now);
+    const formattedTime = new Intl.DateTimeFormat('es-CO', optionsTime).format(now);
+    const footerText = `Reporte generado el ${formattedDate} a las ${formattedTime}`;
     
     doc.moveDown(2)
        .font('Helvetica-Oblique')
        .fontSize(10)
        .fillColor('#95a5a6')
-       .text(footerText, { align: 'center', width: 400 });
+       .text(footerText, { align: 'center', width: 400, lineBreak: false });
 
     doc.end();
 
@@ -397,4 +398,4 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = router; 
