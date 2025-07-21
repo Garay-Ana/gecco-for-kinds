@@ -155,7 +155,7 @@ router.get('/report', verifyToken, async (req, res) => {
     // Período del reporte
     if (startDate || endDate) {
       doc.text(
-        `Período: ${startDate ? new Date(startDate).toLocaleDateString() : 'Inicio'} - ${endDate ? new Date(endDate).toLocaleDateString() : 'Actual'}`
+        `Período: ${startDate ? new Date(startDate).toLocaleDateString('es-CO') : 'Inicio'} - ${endDate ? new Date(endDate).toLocaleDateString('es-CO') : 'Actual'}`
       );
     }
 
@@ -250,7 +250,7 @@ router.get('/report', verifyToken, async (req, res) => {
       doc.font('Helvetica')
          .fontSize(10)
          .fillColor('#2c3e50')
-         .text(new Date(sale.saleDate).toLocaleDateString(), 45, y, { width: table.widths[0] })
+         .text(new Date(sale.saleDate).toLocaleDateString('es-CO'), 45, y, { width: table.widths[0] })
          .text(sale.customerName || 'N/A', 45 + table.widths[0] + 15, y, { width: table.widths[1] })
          .text(productNames, 45 + table.widths[0] + table.widths[1] + 25, y, { width: table.widths[2] })
          .text(cantidadTotal.toString(), 45 + table.widths[0] + table.widths[1] + table.widths[2] + 35, y, { width: table.widths[3], align: 'center' })
