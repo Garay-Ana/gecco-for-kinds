@@ -6,7 +6,7 @@ const Order = require('../models/Order');
 const Seller = require('../models/Seller');
 const verifyToken = require('../middleware/authMiddleware');
 const PDFDocument = require('pdfkit');
-require('pdfkit-table'); // Confirmar que la librería está importada
+
 
 // Función para formatear moneda
 function formatCurrency(value) {
@@ -96,8 +96,6 @@ router.get('/', verifyToken, async (req, res) => {
 
 
 router.get('/report', verifyToken, async (req, res) => {
-  console.log('>>> Generando PDF con tabla (versión 0.1.99)');
-
   try {
     if (req.user.role !== 'seller') {
       return res.status(403).json({ error: 'No autorizado' });
@@ -121,16 +119,14 @@ router.get('/report', verifyToken, async (req, res) => {
     const sellerCode = seller?.code || 'No especificado';
 
     const doc = new PDFDocument({ margin: 40, size: 'A4' });
-
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
       `attachment; filename=reporte_ventas_${sellerCode}_${new Date().toISOString().split('T')[0]}.pdf`
     );
-
     doc.pipe(res);
 
-    // Título y encabezado
+    // Encabezado
     doc.fontSize(20).font('Helvetica-Bold').text('REPORTE DE VENTAS', { align: 'center' }).moveDown(0.5);
     doc.fontSize(12).font('Helvetica')
       .text(`Vendedor: ${sellerName}`)
@@ -147,54 +143,78 @@ router.get('/report', verifyToken, async (req, res) => {
       doc.fontSize(14).fillColor('#7f8c8d')
         .text('No se encontraron ventas para el período seleccionado', { align: 'center' });
       doc.end();
-      console.log('>>> Sin ventas para mostrar');
       return;
     }
 
-    // Datos de tabla
-    const rows = [];
+    // Configuración de tabla
+    const tableTop = doc.y;
+    const rowHeight = 20;
+    const columnWidths = [70, 100, 150, 60, 80, 80]; // en px
+    const columns = ['Fecha', 'Cliente', 'Productos', 'Cant.', 'Total', 'Pago'];
+
+    let y = tableTop;
     let totalCantidad = 0;
     let totalVentas = 0;
 
-    for (const sale of sales) {
-      const productos = sale.items.map(i => i.product?.name || 'N/A').join(', ');
-      const cantidad = sale.items.reduce((s, i) => s + i.quantity, 0);
-      totalCantidad += cantidad;
-      totalVentas += sale.total;
+    // Dibujar encabezado
+    doc.font('Helvetica-Bold').fontSize(10);
+    columns.forEach((col, i) => {
+      doc.text(col, 40 + columnWidths.slice(0, i).reduce((a, b) => a + b, 0), y, {
+        width: columnWidths[i],
+        align: 'left'
+      });
+    });
+    y += rowHeight;
+    doc.moveTo(40, y - 5).lineTo(555, y - 5).stroke();
 
-      rows.push([
+    // Dibujar filas
+    doc.font('Helvetica').fontSize(9);
+    sales.forEach((sale, idx) => {
+      const productos = sale.items.map(i => i.name).join(', ');
+      const cantidad = sale.items.reduce((s, i) => s + i.quantity, 0);
+      const total = sale.total;
+
+      totalCantidad += cantidad;
+      totalVentas += total;
+
+      if (y + rowHeight > 750) {
+        doc.addPage();
+        y = 40;
+      }
+
+      if (idx % 2 === 0) {
+        doc.rect(40, y - 2, 515, rowHeight).fill('#f2f2f2').fillColor('black');
+      }
+
+      const rowData = [
         new Date(sale.saleDate).toLocaleDateString('es-CO'),
         sale.customerName || 'N/A',
         productos,
-        cantidad,
-        new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(sale.total),
+        cantidad.toString(),
+        new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(total),
         sale.paymentMethod || 'N/A'
-      ]);
-    }
+      ];
 
-    const table = {
-      headers: ['Fecha', 'Cliente', 'Productos', 'Cantidad', 'Total', 'Pago'],
-      rows
-    };
+      rowData.forEach((text, i) => {
+        doc.fillColor('black').text(text, 40 + columnWidths.slice(0, i).reduce((a, b) => a + b, 0), y, {
+          width: columnWidths[i],
+          align: 'left'
+        });
+      });
 
-    // 👇 Versión 0.1.99 NO usa `await`
-    doc.table(table, {
-      prepareHeader: () => doc.font('Helvetica-Bold').fontSize(11),
-      prepareRow: () => doc.font('Helvetica').fontSize(10),
-      columnSpacing: 5,
-      padding: 5,
-      width: 500
+      y += rowHeight;
     });
 
     // Resumen
-    doc.moveDown(1.5);
-    doc.font('Helvetica-Bold').fontSize(12).text('RESUMEN FINAL', { align: 'right' });
-    doc.font('Helvetica').fontSize(11)
-      .text(`Total ventas: ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(totalVentas)}`, { align: 'right' })
-      .text(`Ventas realizadas: ${sales.length}`, { align: 'right' })
-      .text(`Productos vendidos: ${totalCantidad}`, { align: 'right' });
+    y += 20;
+    doc.font('Helvetica-Bold').fontSize(11).text('RESUMEN FINAL', 400, y);
+    y += 15;
+    doc.font('Helvetica').fontSize(10)
+      .text(`Total ventas: ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(totalVentas)}`, 400, y)
+      .text(`Ventas realizadas: ${sales.length}`, 400, y + 15)
+      .text(`Productos vendidos: ${totalCantidad}`, 400, y + 30);
 
-    // Pie
+    // Pie de página
     const now = new Date();
     now.setHours(now.getHours() - 5);
     const fecha = now.toLocaleDateString('es-CO');
@@ -206,15 +226,15 @@ router.get('/report', verifyToken, async (req, res) => {
       .text(`Reporte generado el ${fecha} a las ${hora}`, { align: 'center' });
 
     doc.end();
-    console.log('>>> PDF generado con tabla correctamente ✅');
 
   } catch (error) {
-    console.error('>>> ERROR generando reporte:', error);
+    console.error('Error generando PDF:', error);
     if (!res.headersSent) {
       res.status(500).json({ error: 'Error generando el reporte' });
     }
   }
 });
+
 
 
 
