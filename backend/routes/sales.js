@@ -188,16 +188,18 @@ router.get('/report', verifyToken, async (req, res) => {
 
   // ✅ FECHA con respaldo en createdAt si saleDate no está definido
   
-    const fechaVenta = new Date(sale.saleDate || Date.now()).toLocaleDateString('es-CO');
+    const fechaVenta = sale.saleDate
+  ? new Date(sale.saleDate).toLocaleDateString('es-CO')
+  : 'Fecha no disponible';
 
   const rowData = [
-    fechaVenta,
-    sale.customerName  ||'N/A',
-    productos,
-    cantidad.toString(),
-    new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(total),
-    sale.paymentMethod  ||'N/A'
-  ];
+  fechaVenta,
+  sale.customerName  ||'N/A',
+  productos,
+  cantidad.toString(),
+  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(total),
+  sale.paymentMethod ||'N/A'
+];
 
   rowData.forEach((text, i) => {
     doc.fillColor('black').text(text, 40 + columnWidths.slice(0, i).reduce((a, b) => a + b, 0), y, {
