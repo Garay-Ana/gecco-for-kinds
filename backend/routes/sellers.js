@@ -211,7 +211,8 @@ router.get('/zone-summary', verifyToken, sellerAuth, async (req, res) => {
             { sellerPhone: { $in: clientContacts } }
           ]
         },
-        { sellerCode: { $ne: req.user.sellerCode } }
+        { sellerCode: { $ne: req.user.sellerCode } },
+        { seller: { $ne: req.user.id } }
       ]
     });
 
