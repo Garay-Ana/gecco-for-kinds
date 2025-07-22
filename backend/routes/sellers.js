@@ -199,12 +199,7 @@ router.get('/zone-summary', verifyToken, sellerAuth, async (req, res) => {
     console.log('Órdenes con sellerCode igual al código del líder:', leaderOrders.map(o => o.sellerCode));
 
     // Ventas personales del vendedor líder (conteo) por sellerCode o sellerName igual al líder (sin sellerPhone)
-    const totalSalesLeader = await Order.countDocuments({
-      $or: [
-        { sellerCode: { $regex: `^${req.user.sellerCode}$`, $options: 'i' } },
-        { sellerName: { $regex: `^${seller.name}$`, $options: 'i' } }
-      ]
-    });
+    const totalSalesLeader = await Order.countDocuments({ seller: req.user.id });
 
     // Ventas de personas a cargo (conteo) por sellerCode, sellerName o sellerPhone en personas a cargo
     const totalSalesClients = await Order.countDocuments({
