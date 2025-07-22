@@ -267,12 +267,19 @@ router.post('/', verifyToken, async (req, res) => {
     console.log('Nombres de productos recibidos:', productNames);
     const items = [];
 
+    // Función para normalizar nombre eliminando espacios múltiples
+    function normalizeName(name) {
+      return name.replace(/\s+/g, ' ').trim();
+    }
+
     for (const name of productNames) {
-      const trimmedName = name.trim();
-      const productDoc = await Product.findOne({ name: { $regex: `^\\s*${trimmedName}\\s*$`, $options: 'i' } });
+      const normalizedName = normalizeName(name);
+      // Crear regex que ignore espacios múltiples y sea insensible a mayúsculas
+      const regexName = normalizedName.split(' ').join('\\s+');
+      const productDoc = await Product.findOne({ name: { $regex: `^${regexName}$`, $options: 'i' } });
       if (!productDoc) {
-        console.log('Producto no encontrado:', trimmedName);
-        return res.status(400).json({ success: false, error: `Producto no encontrado: ${trimmedName}` });
+        console.log('Producto no encontrado:', normalizedName);
+        return res.status(400).json({ success: false, error: `Producto no encontrado: ${normalizedName}` });
       }
       items.push({
         product: productDoc._id,
