@@ -1,4 +1,4 @@
-/* CSS completo para Panel de Administración (Pantalla Completa) */
+/* CSS completo para Panel de Administración (admin-panel.css) */
 :root {
   --primary-color: #4f46e5;
   --primary-hover: #4338ca;
@@ -970,6 +970,7 @@ body {
 
 .seller-details-container {
   flex: 1;
+  color: #1e3a8a;
 }
 
 .seller-profile {
@@ -985,23 +986,27 @@ body {
 
 .seller-profile-info {
   flex: 1;
+  color: #1e3a8a;
 }
 
 .seller-profile h3 {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: var(--space-2);
+  color: #1e3a8a;
 }
 
 .seller-profile p {
   color: var(--gray-600);
   font-size: 0.875rem;
+  color: #1e3a8a;
 }
 
 .seller-stats {
   display: flex;
   gap: var(--space-6);
   margin-top: var(--space-4);
+  color: #1e3a8a;
 }
 
 .stat {
@@ -1009,16 +1014,24 @@ body {
   flex-direction: column;
   align-items: center;
   gap: var(--space-1);
+  color: #1e3a8a;
 }
 
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 600;
+/* Opcional: estilo para los números */
+.seller-stats .stat-value {
+  color: #1e3a8a !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
 }
 
-.stat-label {
-  font-size: 0.875rem;
-  color: var(--gray-600);
+/* Estilo forzado para los labels */
+.seller-stats .stat-label {
+  color: #1e40af !important; /* Azul oscuro */
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  display: block !important;
+  margin-top: 0.25rem !important;
 }
 
 .seller-tabs {

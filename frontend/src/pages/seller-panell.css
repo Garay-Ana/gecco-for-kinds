@@ -1,4 +1,4 @@
-/* Iconos (usando Font Awesome) - debe ir primero */
+/* Iconos (usando Font Awesome) - debe ir primero (seller-panell.css) */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 
 /* Fuentes y colores base */
@@ -46,17 +46,20 @@
 }
 
 .sales-back-button {
-  background-color: var(--gray-color);
+  background-color: var(--primary-color);  /* Usa el color primario */
   color: var(--white);
   border: none;
-  padding: 10px 20px;
+  padding: 8px 16px;
+  margin-left: 30px;                     
   border-radius: var(--border-radius);
   cursor: pointer;
   font-weight: 500;
-  display: flex;
+  font-size: 0.875rem;                   /* Texto más pequeño */
+  display: inline-flex;                  /* Para mejor alineación */
   align-items: center;
   gap: 8px;
   transition: var(--transition);
+  box-shadow: var(--box-shadow);         /* Sombra consistente */
 }
 
 .sales-back-button:hover {

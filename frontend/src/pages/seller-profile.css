@@ -1,4 +1,4 @@
-/* Estilos base */
+/* Estilos base (seller-profile.css) */
 :root {
   --primary-color: #4f46e5;
   --primary-dark: #4338ca;
@@ -170,6 +170,14 @@
 .logout-button {
   background-color: var(--danger-color);
   color: var(--white);
+  padding: 8px 16px !important;       /* Tamaño más compacto */
+  font-size: 0.875rem !important;     /* Texto más pequeño */
+  border-radius: 6px !important;      /* Bordes ligeramente menos redondeados */
+  display: inline-flex !important;    /* Para que no ocupe todo el ancho */
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+  margin-left: auto;                 /* Lo alinea a la derecha si está en un flex container */
 }
 
 .logout-button:hover {
