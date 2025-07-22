@@ -653,32 +653,17 @@ export default function AdminPanel() {
                       <div className="seller-stats">
                         <div className="stat">
                           <span className="stat-value">{sellerClients.length}</span>
-                          <span className="stat-label">Vendedor</span>
+                          <span className="stat-label">Clientes</span>
                         </div>
-                        <div className="generate-report-btn">
-                        <button 
-                          onClick={generateSalesReport}
-                            style={{
-                                background: 'linear-gradient(135deg, #4f46e5 0%, #2563eb 100%)',
-                             color: 'white',
-                             border: 'none',
-                             padding: '0.6rem 1.2rem',
-                             borderRadius: '8px',
-                             fontWeight: '600',
-                             fontSize: '0.9rem',
-                             cursor: 'pointer',
-                             display: 'flex',
-                             alignItems: 'center',
-                             gap: '0.5rem',
-                             boxShadow: '0 4px 6px rgba(79, 70, 229, 0.2)',
-                             transition: 'all 0.3s ease'
-                          }}
-                   >
-                    📄 Descargar Reporte PDF
-                  </button>
-                      </div>
+                        {sellerSales.length > 0 && (
+  <div className="generate-report-btn">
+    <button onClick={generateSalesReport}>
+      📄 Descargar Reporte PDF
+    </button>
+  </div>
+)}
 
-                    <div className="stat">
+                        <div className="stat">
                           <span className="stat-value">{sellerSales.length}</span>
                           <span className="stat-label">Ventas</span>
                         </div>

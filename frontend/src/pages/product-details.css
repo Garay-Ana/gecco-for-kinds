@@ -1,473 +1,227 @@
-/* producto-datails.css */
-body {
-  background-color: #e0f2ff;
-  font-family: 'Comic Sans MS', cursive, sans-serif;
-  margin: 0;
-  padding: 0;
-}
+/* product-details.css */
 
-/* Contenedor principal */
 .product-details-container {
-  min-height: 100vh;
+  max-width: 1200px;
+  margin: auto;
   padding: 2rem 1rem;
-  background-color: #e0f2ff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  font-family: 'Segoe UI', sans-serif;
+  color: #1e293b;
+  background: #e0f2fe;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
-/* Enlace volver */
 .back-link {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #2196f3;
-  font-weight: bold;
+  color: #3b82f6;
+  font-weight: 600;
   text-decoration: none;
-  background-color: #bbdefb;
-  padding: 0.5rem 1.2rem;
-  font-size: 1.1rem;
-  border-radius: 1rem;
-  transition: background 0.3s ease;
   margin-bottom: 1.5rem;
-}
-.back-link:hover {
-  background-color: #90caf9;
+  transition: color 0.2s ease;
 }
 
-/* Tarjeta principal */
+.back-link:hover {
+  color: #2563eb;
+}
+
 .product-details-card {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  background-color: #fff;
-  border-radius: 2rem;
-  padding: 2.5rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  max-width: 1100px;
-  width: 100%;
 }
 
-/* Distribución en 2 columnas en pantallas grandes */
-@media (min-width: 768px) {
-  .product-details-card {
-    flex-direction: row;
-    align-items: flex-start;
-  }
-
-  .product-details-image,
-  .product-details-info {
-    flex: 1;
-  }
-
-  .product-details-image {
-    max-width: 48%;
-    text-align: center;
-  }
-
-  .product-details-info {
-    max-width: 52%;
-    padding-left: 2rem;
-  }
+.product-details-image,
+.product-details-info {
+  flex: 1;
 }
 
-/* Imagen principal */
-.gallery-main-image-vsc img {
-  max-width: 100%;
-  max-height: 480px;
-  border-radius: 1.5rem;
-  border: 5px solid #64b5f6;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+.product-gallery-vsc {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Miniaturas */
 .gallery-thumbnails-vsc {
   display: flex;
-  justify-content: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
+
 .gallery-thumb-vsc {
-  width: 70px;
-  height: 70px;
-  border-radius: 1rem;
-  border: 3px solid transparent;
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
   object-fit: cover;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-.gallery-thumb-vsc:hover {
-  transform: scale(1.1);
-}
+
+.gallery-thumb-vsc:hover,
 .gallery-thumb-vsc.active {
-  border-color: #1976d2;
+  border-color: #3b82f6;
+  transform: scale(1.05);
 }
 
-/* Flechas galería */
-.gallery-arrow {
-  font-size: 2.2rem;
-  background: #fff;
-  border: 3px solid #64b5f6;
-  border-radius: 50%;
-  padding: 0.6rem;
-  cursor: pointer;
-  margin: 0 1rem;
-}
-.gallery-arrow:hover {
-  background-color: #bbdefb;
-}
-
-/* Título */
-.product-details-info h2 {
-  font-size: 2.2rem;
-  color: #1e88e5;
-  font-weight: bold;
-  margin-bottom: 0.8rem;
+.gallery-main-image-vsc {
   position: relative;
-}
-.product-details-info h2::after {
-  content: " 👕";
-  position: absolute;
-  right: -2.5rem;
-  font-size: 1.8rem;
+  width: 100%;
+  max-width: 450px;
 }
 
-/* Precio */
-.product-details-price {
-  font-size: 1.8rem;
-  color: #43a047;
+.gallery-main-image-vsc img {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.gallery-main-image-vsc img:hover {
+  transform: scale(1.02);
+}
+
+.gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(59, 130, 246, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  padding: 0.4rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.3s;
+}
+
+.gallery-arrow.left {
+  left: -20px;
+}
+.gallery-arrow.right {
+  right: -20px;
+}
+
+.gallery-arrow:hover {
+  background: rgba(37, 99, 235, 0.9);
+}
+
+.product-details-info h2 {
+  font-size: 2rem;
   font-weight: bold;
-  background-color: #e8f5e9;
-  padding: 0.4rem 1rem;
-  border-radius: 1rem;
-  display: inline-block;
+  color: #0c4a6e;
+  margin-bottom: 0.5rem;
+}
+
+.product-details-price {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #10b981;
   margin-bottom: 1.2rem;
 }
 
-/* Colores */
-.product-details-colors-vsc {
-  margin: 1.2rem 0;
-}
-.color-label {
-  font-weight: bold;
-  font-size: 1.1rem;
-  margin-right: 0.5rem;
-}
-.colors-list-vsc {
-  display: flex;
-  gap: 0.6rem;
-  margin-top: 0.5rem;
-}
-.color-dot-vsc {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 3px solid #ccc;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-.color-dot-vsc.selected {
-  border-color: #2196f3;
-  transform: scale(1.1);
+.product-details-colors-vsc,
+.product-details-sizes-vsc {
+  margin-bottom: 1.5rem;
 }
 
-/* Tallas */
-.product-details-sizes-vsc {
-  margin: 1.2rem 0;
-}
+.color-label,
 .sizes-label {
-  font-weight: bold;
-  font-size: 1.1rem;
-  margin-right: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: #334155;
 }
+
+.colors-list-vsc {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.color-dot-vsc {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.color-dot-vsc.selected {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
 .sizes-list-vsc {
   display: flex;
   gap: 0.6rem;
   flex-wrap: wrap;
-  margin-top: 0.5rem;
 }
+
 .size-badge-vsc {
-  background-color: #bbdefb;
-  color: #0d47a1;
-  border: 2px dashed #64b5f6;
-  padding: 0.6rem 1.4rem;
-  font-size: 1.1rem;
-  border-radius: 2rem;
-  font-weight: bold;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  background: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
 }
+
 .size-badge-vsc.selected {
-  background-color: #64b5f6;
-  color: #fff;
-  border-style: solid;
+  background: #3b82f6;
+  color: white;
+  border-color: #1d4ed8;
 }
 
-/* Descripción */
-.product-details-description h3 {
-  margin-top: 1rem;
-  color: #1976d2;
-  font-size: 1.4rem;
-}
-.product-details-description p {
-  background-color: #f1f8ff;
-  padding: 1rem;
-  border-radius: 1rem;
-  font-size: 1.05rem;
+.product-details-description {
+  margin-top: 1.5rem;
+  font-size: 1rem;
   line-height: 1.6;
+  color: #475569;
 }
 
-/* Disponibilidad */
 .product-stock {
+  font-weight: 600;
   margin-top: 1rem;
-  font-weight: bold;
-  color: #ff5722;
-  font-size: 1.1rem;
+  color: #0f766e;
 }
 
-/* Código de vendedor */
-.seller-code-box label {
-  display: block;
-  font-size: 1.1rem;
-  margin-bottom: 0.3rem;
-  color: #1976d2;
-  font-weight: bold;
-}
-.seller-code-box input[type="text"] {
-  font-family: 'Comic Sans MS', cursive;
-  background-color: #e3f2fd;
-  border: 2px solid #64b5f6;
-  border-radius: 1rem;
-  font-size: 1.05rem;
-  padding: 0.6rem 1.2rem;
-  width: 100%;
-  max-width: 360px;
-}
-.seller-code-box div {
-  margin-top: 0.3rem;
-  color: #ef4444;
-  font-size: 0.95rem;
-}
-
-/* Botón WhatsApp */
 .whatsapp-order-btn {
+  margin-top: 1.8rem;
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  margin-top: 1.2rem;
-  padding: 0.9rem 1.8rem;
   background-color: #25d366;
   color: white;
-  font-size: 1.15rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 2rem;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-.whatsapp-order-btn:hover {
-  background-color: #1ebe5d;
-  transform: scale(1.05);
-}
-.whatsapp-order-btn.disabled {
-  background-color: #b0bec5;
-  cursor: not-allowed;
-}
-
-/* Loading */
-.loading-spinner {
-  text-align: center;
-  margin-top: 4rem;
-}
-.spinner {
-  width: 60px;
-  height: 60px;
-  border: 6px solid #64b5f6;
-  border-top: 6px solid transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Error */
-.error-message {
-  background-color: #ffcdd2;
-  color: #c62828;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  text-align: center;
-  max-width: 600px;
-  margin: 2rem auto;
-}
-
-/* Pantallas ultraanchas (2K o más) */
-@media (min-width: 1400px) {
-  .product-details-card {
-    max-width: 1300px;
-    padding: 3rem 4rem;
-    gap: 3rem;
-  }
-
-  .product-details-info h2 {
-    font-size: 2.6rem;
-  }
-
-  .product-details-price {
-    font-size: 2.2rem;
-  }
-
-  .product-details-description h3 {
-    font-size: 1.8rem;
-  }
-
-  .product-details-description p {
-    font-size: 1.2rem;
-  }
-
-  .size-badge-vsc,
-  .color-label,
-  .sizes-label,
-  .product-stock,
-  .seller-code-box label,
-  .seller-code-box input[type="text"] {
-    font-size: 1.3rem;
-  }
-
-  .whatsapp-order-btn {
-    font-size: 1.3rem;
-    padding: 1rem 2.2rem;
-  }
-
-  .gallery-thumb-vsc {
-    width: 90px;
-    height: 90px;
-  }
-
-  .gallery-main-image-vsc img {
-    max-height: 600px;
-  }
-
-  .back-link {
-    font-size: 1.2rem;
-    padding: 0.7rem 1.6rem;
-  }
-}
-
-
-/* Ajustes para pantallas ultraanchas (1440px o más) */
-@media (min-width: 1400px) {
-  .product-details-card {
-    max-width: 1300px;
-    padding: 3rem 4rem;
-    gap: 3rem;
-  }
-
-  .product-details-info h2 {
-    font-size: 2.6rem;
-  }
-
-  .product-details-price {
-    font-size: 2.2rem;
-  }
-
-  .product-details-description h3 {
-    font-size: 1.8rem;
-  }
-
-  .product-details-description p {
-    font-size: 1.2rem;
-  }
-
-  .size-badge-vsc,
-  .color-label,
-  .sizes-label,
-  .product-stock,
-  .seller-code-box label,
-  .seller-code-box input[type="text"] {
-    font-size: 1.3rem;
-  }
-
-  .whatsapp-order-btn {
-    font-size: 1.3rem;
-    padding: 1rem 2.2rem;
-  }
-
-  .gallery-thumb-vsc {
-    width: 90px;
-    height: 90px;
-  }
-
-  .gallery-main-image-vsc img {
-    max-height: 600px;
-  }
-
-  .back-link {
-    font-size: 1.2rem;
-    padding: 0.7rem 1.6rem;
-  }
-}
-
-@keyframes pulseButtonStrong {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6);
-  }
-  50% {
-    transform: scale(1.12);
-    box-shadow: 0 0 15px 6px rgba(37, 211, 102, 0.3);
-  }
-}
-
-@keyframes shimmerLine {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 200%;
-  }
-}
-
-.whatsapp-order-btn {
-  position: relative;
-  overflow: hidden;
-  background-color: #25D366;
-  color: white;
-  border: none;
-  border-radius: 0.75rem;
   padding: 0.75rem 1.5rem;
-  font-size: 1.1rem;
+  border-radius: 10px;
+  font-size: 1rem;
   font-weight: 600;
-  cursor: pointer;
-  animation: pulseButtonStrong 2.2s infinite ease-in-out;
-  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  text-decoration: none;
+  transition: background 0.3s ease;
 }
 
 .whatsapp-order-btn:hover {
-  transform: scale(1.15);
-  background-color: #1ebe5d;
-  box-shadow: 0 0 20px rgba(37, 211, 102, 0.8);
+  background-color: #1ebe57;
 }
 
-/* Línea brillante */
-.whatsapp-order-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(120deg, rgba(255,255,255,0.4), rgba(255,255,255,0));
-  transform: skewX(-20deg);
-  animation: shimmerLine 2.8s infinite;
-  pointer-events: none;
+@media (min-width: 768px) {
+  .product-details-card {
+    flex-direction: row;
+    gap: 3rem;
+  }
+
+  .gallery-main-image-vsc {
+    max-width: 500px;
+  }
 }
+
 
 @keyframes pulseGlowPrice {
   0%, 100% {
@@ -563,4 +317,60 @@ body {
   .product-details-description p {
     font-size: 0.95rem;
   }
+}
+
+@keyframes pulseButtonStrong {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6);
+  }
+  50% {
+    transform: scale(1.12);
+    box-shadow: 0 0 15px 6px rgba(37, 211, 102, 0.3);
+  }
+}
+
+
+@keyframes shimmerLine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+.whatsapp-order-btn {
+  position: relative;
+  overflow: hidden;
+  background-color: #25D366;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  animation: pulseButtonStrong 2.2s infinite ease-in-out;
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.whatsapp-order-btn:hover {
+  transform: scale(1.15);
+  background-color: #1ebe5d;
+  box-shadow: 0 0 20px rgba(37, 211, 102, 0.8);
+}
+
+/* Línea brillante */
+.whatsapp-order-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(120deg, rgba(255,255,255,0.4), rgba(255,255,255,0));
+  transform: skewX(-20deg);
+  animation: shimmerLine 2.8s infinite;
+  pointer-events: none;
 }
