@@ -653,7 +653,7 @@ export default function AdminPanel() {
                       <div className="seller-stats">
                         <div className="stat">
                           <span className="stat-value">{sellerClients.length}</span>
-                          <span className="stat-label">Clientes</span>
+                          <span className="stat-label">Vendedor</span>
                         </div>
                         <div className="generate-report-btn">
                         <button 
