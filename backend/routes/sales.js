@@ -269,7 +269,7 @@ router.post('/', verifyToken, async (req, res) => {
 
     for (const name of productNames) {
       const trimmedName = name.trim();
-      const productDoc = await Product.findOne({ name: new RegExp('^' + trimmedName + '$', 'i') });
+      const productDoc = await Product.findOne({ name: { $regex: `^\\s*${trimmedName}\\s*$`, $options: 'i' } });
       if (!productDoc) {
         console.log('Producto no encontrado:', trimmedName);
         return res.status(400).json({ success: false, error: `Producto no encontrado: ${trimmedName}` });
