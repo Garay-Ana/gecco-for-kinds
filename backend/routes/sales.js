@@ -269,8 +269,14 @@ router.post('/', verifyToken, async (req, res) => {
 
     // Función para normalizar nombre eliminando espacios múltiples
     function normalizeName(name) {
-      return name.replace(/\s+/g, ' ').trim();
-    }
+  return name
+    .normalize("NFD") // separa acentos de letras
+    .replace(/[\u0300-\u036f]/g, "") // elimina acentos
+    .replace(/\s+/g, " ") // colapsa espacios múltiples
+    .replace(/[\u00A0]/g, " ") // reemplaza espacios no rompibles
+    .trim();
+}
+
 const allProducts = await Product.find({}, { name: 1 });
 console.log('🧾 Productos en base de datos:');
 allProducts.forEach(p => console.log(`- "${p.name}"`));
@@ -280,7 +286,7 @@ allProducts.forEach(p => console.log(`- "${p.name}"`));
       // Crear regex que ignore espacios múltiples y sea insensible a mayúsculas
       
       const productDoc = await Product.findOne({
-  name: { $regex: new RegExp('^${normalizedName}$', 'i') }
+  name: { $regex: new RegExp(normalizedName.replace(/\s+/g, '.*'), 'i') }
 });
       if (!productDoc) {
         console.log('Producto no encontrado:', normalizedName);

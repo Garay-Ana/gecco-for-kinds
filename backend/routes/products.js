@@ -21,6 +21,7 @@ function normalizeStringArray(val) {
 }
 
 // Crear producto con imagen en Cloudinary
+
 router.post('/', verifyToken, upload.single('image'), async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
