@@ -275,9 +275,9 @@ router.post('/', verifyToken, async (req, res) => {
     for (const name of productNames) {
       const normalizedName = normalizeName(name);
       // Crear regex que ignore espacios múltiples y sea insensible a mayúsculas
-      const regexName = normalizedName.split(' ').join('\\s+');
+      
       const productDoc = await Product.findOne({
-  name: { $regex: new regexName('^${normalizedName}$', 'i') }
+  name: { $regex: new RegExp('^${normalizedName}$', 'i') }
 });
       if (!productDoc) {
         console.log('Producto no encontrado:', normalizedName);
