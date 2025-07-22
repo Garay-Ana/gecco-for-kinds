@@ -1,6 +1,13 @@
 const express = require('express');
-const app = express();
 const cors = require('cors');
+const app = express();
+
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://gecco-for-kinds.onrender.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 const mongoose = require('mongoose');
 const path = require('path');
 const dotenv = require('dotenv');
