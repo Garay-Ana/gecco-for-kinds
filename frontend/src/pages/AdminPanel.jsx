@@ -46,7 +46,7 @@ export default function AdminPanel() {
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
-      const res = await axios.get('https://gecco-for-kinds.onrender.com/api/products');
+      const res = await axios.get('http://localhost:5000/api/products');
       setProducts(res.data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -89,7 +89,7 @@ export default function AdminPanel() {
       setIsLoading(true);
       if (editingId) {
         await axios.put(
-          `https://gecco-for-kinds.onrender.com/api/products/${editingId}`,
+          `http://localhost:5000/api/products/${editingId}`,
           formData,
           { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
         );
@@ -97,7 +97,7 @@ export default function AdminPanel() {
         setEditingId(null);
       } else {
         await axios.post(
-          'https://gecco-for-kinds.onrender.com/api/products',
+          'http://localhost:5000/api/products',
           formData,
           { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
         );
@@ -143,7 +143,7 @@ export default function AdminPanel() {
 
     try {
       setIsLoading(true);
-      await axios.delete(`https://gecco-for-kinds.onrender.com/api/products/${id}`, {
+      await axios.delete(`http://localhost:5000/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('Producto eliminado correctamente');
@@ -160,7 +160,7 @@ export default function AdminPanel() {
   const fetchSellers = async () => {
     try {
       setLoadingSellers(true);
-      const res = await axios.get('https://gecco-for-kinds.onrender.com/api/admin-sellers/sellers', {
+      const res = await axios.get('http://localhost:5000/api/admin-sellers/sellers', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSellers(res.data);
@@ -175,7 +175,7 @@ export default function AdminPanel() {
   const fetchSellerClients = async (sellerId) => {
     try {
       setLoadingClients(true);
-      const res = await axios.get(`https://gecco-for-kinds.onrender.com/api/admin-sellers/sellers/${sellerId}/clients`, {
+      const res = await axios.get(`http://localhost:5000/api/admin-sellers/sellers/${sellerId}/clients`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSellerClients(res.data);
@@ -190,7 +190,7 @@ export default function AdminPanel() {
   const fetchSellerSales = async (sellerId) => {
     try {
       setLoadingSales(true);
-      const res = await axios.get(`https://gecco-for-kinds.onrender.com/api/admin-sellers/sellers/${sellerId}/sales`, {
+      const res = await axios.get(`http://localhost:5000/api/admin-sellers/sellers/${sellerId}/sales`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSellerSales(res.data);
@@ -655,15 +655,30 @@ export default function AdminPanel() {
                           <span className="stat-value">{sellerClients.length}</span>
                           <span className="stat-label">Clientes</span>
                         </div>
-                        {sellerSales.length > 0 && (
-  <div className="generate-report-btn">
-    <button onClick={generateSalesReport}>
-      📄 Descargar Reporte PDF
-    </button>
-  </div>
-)}
+                        <div className="generate-report-btn">
+                        <button 
+                          onClick={generateSalesReport}
+                            style={{
+                                background: 'linear-gradient(135deg, #4f46e5 0%, #2563eb 100%)',
+                             color: 'white',
+                             border: 'none',
+                             padding: '0.6rem 1.2rem',
+                             borderRadius: '8px',
+                             fontWeight: '600',
+                             fontSize: '0.9rem',
+                             cursor: 'pointer',
+                             display: 'flex',
+                             alignItems: 'center',
+                             gap: '0.5rem',
+                             boxShadow: '0 4px 6px rgba(79, 70, 229, 0.2)',
+                             transition: 'all 0.3s ease'
+                          }}
+                   >
+                    📄 Descargar Reporte PDF
+                  </button>
+                      </div>
 
-                        <div className="stat">
+                    <div className="stat">
                           <span className="stat-value">{sellerSales.length}</span>
                           <span className="stat-label">Ventas</span>
                         </div>
