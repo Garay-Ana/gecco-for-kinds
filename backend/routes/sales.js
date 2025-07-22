@@ -271,6 +271,9 @@ router.post('/', verifyToken, async (req, res) => {
     function normalizeName(name) {
       return name.replace(/\s+/g, ' ').trim();
     }
+const allProducts = await Product.find({}, { name: 1 });
+console.log('🧾 Productos en base de datos:');
+allProducts.forEach(p => console.log(`- "${p.name}"`));
 
     for (const name of productNames) {
       const normalizedName = normalizeName(name);
