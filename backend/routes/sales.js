@@ -187,7 +187,7 @@ router.get('/report', verifyToken, async (req, res) => {
       }
 
       const rowData = [
-        new Date(sale.saleDate).toLocaleDateString('es-CO'),
+        new Date(sale.saleDate || Date.now()).toLocaleDateString('es-CO'),
         sale.customerName || 'N/A',
         productos,
         cantidad.toString(),

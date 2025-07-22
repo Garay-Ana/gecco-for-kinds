@@ -167,7 +167,7 @@ export default function SellerPanel() {
           </button>
           <button 
             className="btn logout-btn"
-            onClick={() => { localStorage.removeItem('sellerToken'); navigate('/seller/login'); }}
+            onClick={() => { localStorage.removeItem('sellerToken'); navigate('/privatevendor'); }}
           >
             <i className="fas fa-sign-out-alt"></i> Cerrar sesión
           </button>

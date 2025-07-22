@@ -260,7 +260,7 @@ export default function AdminPanel() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    navigate('/');
+    navigate('/privateadmin'); // Redirigir a la página de inicio
   };
 
   // Render
@@ -653,17 +653,32 @@ export default function AdminPanel() {
                       <div className="seller-stats">
                         <div className="stat">
                           <span className="stat-value">{sellerClients.length}</span>
-                          <span className="stat-label">Clientes</span>
+                          <span className="stat-label">Vendedor</span>
                         </div>
-                        {sellerSales.length > 0 && (
-  <div className="generate-report-btn">
-    <button onClick={generateSalesReport}>
-      📄 Descargar Reporte PDF
-    </button>
-  </div>
-)}
+                        <div className="generate-report-btn">
+                        <button 
+                          onClick={generateSalesReport}
+                            style={{
+                                background: 'linear-gradient(135deg, #4f46e5 0%, #2563eb 100%)',
+                             color: 'white',
+                             border: 'none',
+                             padding: '0.6rem 1.2rem',
+                             borderRadius: '8px',
+                             fontWeight: '600',
+                             fontSize: '0.9rem',
+                             cursor: 'pointer',
+                             display: 'flex',
+                             alignItems: 'center',
+                             gap: '0.5rem',
+                             boxShadow: '0 4px 6px rgba(79, 70, 229, 0.2)',
+                             transition: 'all 0.3s ease'
+                          }}
+                   >
+                    📄 Descargar Reporte PDF
+                  </button>
+                      </div>
 
-                        <div className="stat">
+                    <div className="stat">
                           <span className="stat-value">{sellerSales.length}</span>
                           <span className="stat-label">Ventas</span>
                         </div>
@@ -732,25 +747,51 @@ export default function AdminPanel() {
                       ) : sellerSales.length > 0 ? (
                         <div className="sales-table">
                           <table>
-                            <thead>
-                            <tr>
-                              <th>Fecha</th>
-                              <th>Vendedor</th>
-                              <th>Total</th>
-                              <th>Método de pago</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-{sellerSales.map(sale => (
-  <tr key={sale._id}>
-    <td>{new Date(sale.saleDate || sale.createdAt).toLocaleDateString()}</td>
-    <td>{sale.customerName}</td>
-    <td>${sale.total.toLocaleString()}</td>
-    <td>{sale.paymentMethod || 'No especificado'}</td>
-  </tr>
-))}
-                            </tbody>
-                          </table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Fecha</th>
+      <th>Vendedor</th>
+      <th>Productos</th>
+      <th>Cantidad</th>
+      <th>Precio Unitario</th>
+      <th>Total por Producto</th>
+      <th>Método de pago</th>
+    </tr>
+  </thead>
+  <tbody>
+    {sellerSales.map((venta, index) => (
+      <tr key={index}>
+        <td>{index + 1}</td>
+        <td>{new Date(venta.saleDate).toLocaleDateString()}</td>
+        <td>{venta.customerName}</td>
+        <td>
+          {venta.items.map((item, i) => (
+            <div key={i}>{item.name}</div>
+          ))}
+        </td>
+        <td>
+          {venta.items.map((item, i) => (
+            <div key={i}>{item.quantity}</div>
+          ))}
+        </td>
+        <td>
+          {venta.items.map((item, i) => (
+            <div key={i}>${item.price.toLocaleString()}</div>
+          ))}
+        </td>
+        <td>
+          {venta.items.map((item, i) => (
+            <div key={i}>${(item.price * item.quantity).toLocaleString()}</div>
+          ))}
+        </td>
+        <td>{venta.paymentMethod}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+
                         </div>
                       ) : (
                         <div className="empty-state small">
