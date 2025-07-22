@@ -1,4 +1,4 @@
-
+ 
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
@@ -262,13 +262,17 @@ router.post('/', verifyToken, async (req, res) => {
     }
 
     // Crear items con product ObjectId
+    // Agregar trim() para eliminar espacios extras en nombres
     const productNames = products.split(',').map(p => p.trim());
+    console.log('Nombres de productos recibidos:', productNames);
     const items = [];
 
     for (const name of productNames) {
-      const productDoc = await Product.findOne({ name: new RegExp('^' + name + '$', 'i') });
+      const trimmedName = name.trim();
+      const productDoc = await Product.findOne({ name: new RegExp('^' + trimmedName + '$', 'i') });
       if (!productDoc) {
-        return res.status(400).json({ success: false, error: `Producto no encontrado: ${name}` });
+        console.log('Producto no encontrado:', trimmedName);
+        return res.status(400).json({ success: false, error: `Producto no encontrado: ${trimmedName}` });
       }
       items.push({
         product: productDoc._id,

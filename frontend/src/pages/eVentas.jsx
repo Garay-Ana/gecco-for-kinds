@@ -40,10 +40,18 @@ export default function EVentas() {
       // Enviar la fecha tal cual sin ajuste para evitar desfase
       const adjustedSaleDate = form.saleDate || null;
 
+      // Hacer trim() a cada nombre de producto antes de enviar
+      const trimmedProducts = form.products
+        .split(',')
+        .map(p => p.trim())
+        .filter(p => p.length > 0)
+        .join(',');
+
       await axios.post(
         'https://gecco-for-kinds.onrender.com/api/sales',
         {
           ...form,
+          products: trimmedProducts,
           saleDate: adjustedSaleDate,
           customerPhone: form.customerPhone,
           address: form.address
