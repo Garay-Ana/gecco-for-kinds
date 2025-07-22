@@ -187,9 +187,8 @@ router.get('/report', verifyToken, async (req, res) => {
   }
 
   // ✅ FECHA con respaldo en createdAt si saleDate no está definido
-  const fechaVenta = sale.saleDate
-    ? new Date(sale.saleDate).toLocaleDateString('es-CO')
-    : new Date(sale.createdAt).toLocaleDateString('es-CO');
+  
+    const fechaVenta = new Date(sale.saleDate || Date.now()).toLocaleDateString('es-CO');
 
   const rowData = [
     fechaVenta,
