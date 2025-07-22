@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
@@ -5,6 +6,7 @@ const Order = require('../models/Order');
 const Seller = require('../models/Seller');
 const verifyToken = require('../middleware/authMiddleware');
 const PDFDocument = require('pdfkit');
+
 
 // Función para formatear moneda
 function formatCurrency(value) {
@@ -89,7 +91,10 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
-// Generar reporte PDF mejorado
+// Endpoint para generar PDF profesional de reporte de ventas
+
+
+
 router.get('/report', verifyToken, async (req, res) => {
   try {
     if (req.user.role !== 'seller') {
@@ -113,210 +118,134 @@ router.get('/report', verifyToken, async (req, res) => {
     const sellerName = seller?.name || 'No especificado';
     const sellerCode = seller?.code || 'No especificado';
 
-    // Configuración del documento con márgenes adecuados
-    const doc = new PDFDocument({
-      margin: 40,
-      size: 'A4',
-      bufferPages: true
-    });
-
-    // Configurar headers de respuesta
+    const doc = new PDFDocument({ margin: 40, size: 'A4' });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
       `attachment; filename=reporte_ventas_${sellerCode}_${new Date().toISOString().split('T')[0]}.pdf`
     );
-
-    // Manejo de errores
-    doc.on('error', (err) => {
-      console.error('Error en generación de PDF:', err);
-      if (!res.headersSent) {
-        res.status(500).json({ error: 'Error generando PDF' });
-      }
-    });
-
     doc.pipe(res);
 
-    // Estilo para el título principal
-    doc.font('Helvetica-Bold')
-       .fontSize(20)
-       .fillColor('#2c3e50')
-       .text('REPORTE DE VENTAS', { align: 'center' })
-       .moveDown(0.5);
+    // Encabezado
+    doc.fontSize(20).font('Helvetica-Bold').text('REPORTE DE VENTAS', { align: 'center' }).moveDown(0.5);
+    doc.fontSize(12).font('Helvetica')
+      .text(`Vendedor: ${sellerName}`)
+      .text(`Código: ${sellerCode}`)
+      .moveDown(0.5);
 
-    // Información del vendedor
-    doc.font('Helvetica')
-       .fontSize(12)
-       .fillColor('#34495e')
-       .text(`Vendedor: ${sellerName}`)
-       .text(`Código: ${sellerCode}`)
-       .moveDown(0.5);
-
-    // Período del reporte
     if (startDate || endDate) {
-      doc.text(
-        `Período: ${startDate ? new Date(startDate).toLocaleDateString() : 'Inicio'} - ${endDate ? new Date(endDate).toLocaleDateString() : 'Actual'}`
-      );
+      doc.text(`Período: ${startDate || 'Inicio'} - ${endDate || 'Actual'}`);
     }
 
-    // Línea divisoria decorativa
-    doc.moveTo(40, doc.y + 10)
-       .lineTo(550, doc.y + 10)
-       .lineWidth(1)
-       .stroke('#e0e0e0')
-       .moveDown(1.5);
+    doc.moveDown(1);
 
-    if (sales.length === 0) {
-      doc.fontSize(14)
-         .fillColor('#7f8c8d')
-         .text('No se encontraron ventas para el período seleccionado', { align: 'center' });
+    if (!sales.length) {
+      doc.fontSize(14).fillColor('#7f8c8d')
+        .text('No se encontraron ventas para el período seleccionado', { align: 'center' });
       doc.end();
       return;
     }
 
-    // Configuración de la tabla mejorada
-    const table = {
-  headers: ['Fecha', 'Vendedor', 'Producto', 'Cant.', 'Unitario', 'Subtotal', 'Método Pago'],
-  widths: [60, 80, 110, 40, 60, 70, 100], // total: ~520
-  align: ['left', 'left', 'left', 'center', 'right', 'right', 'left'],
-  x: 40,
-  y: doc.y
-};
+    // Configuración de tabla
+    const tableTop = doc.y;
+    const rowHeight = 20;
+    const columnWidths = [70, 100, 150, 60, 80, 80]; // en px
+    const columns = ['Fecha', 'Cliente', 'Productos', 'Cant.', 'Total', 'Pago'];
 
+    let y = tableTop;
+    let totalCantidad = 0;
+    let totalVentas = 0;
 
-    // Encabezados de tabla con estilo mejorado
-    doc.rect(table.x, table.y, 550, 25)
-       .fill('#3498db');
+    // Dibujar encabezado
+    doc.font('Helvetica-Bold').fontSize(10);
+    columns.forEach((col, i) => {
+      doc.text(col, 40 + columnWidths.slice(0, i).reduce((a, b) => a + b, 0), y, {
+        width: columnWidths[i],
+        align: 'left'
+      });
+    });
+    y += rowHeight;
+    doc.moveTo(40, y - 5).lineTo(555, y - 5).stroke();
 
-    doc.font('Helvetica-Bold')
-       .fontSize(11)
-       .fillColor('#ffffff')
-       .text(table.headers[0], table.x + 5, table.y + 7, { width: table.widths[0] })
-       .text(table.headers[1], table.x + table.widths[0] + 15, table.y + 7, { width: table.widths[1] })
-       .text(table.headers[2], table.x + table.widths[0] + table.widths[1] + 25, table.y + 7, { width: table.widths[2] })
-       .text(table.headers[3], table.x + table.widths[0] + table.widths[1] + table.widths[2] + 35, table.y + 7, { width: table.widths[3], align: 'center' })
-       .text(table.headers[4], table.x + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 45, table.y + 7, { width: table.widths[4], align: 'right' })
-       .text(table.headers[5], table.x + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + 55, table.y + 7, { width: table.widths[5] });
+    // Dibujar filas
+    doc.font('Helvetica').fontSize(9);
+    sales.forEach((sale, idx) => {
+      const productos = sale.items.map(i => i.name).join(', ');
+      const cantidad = sale.items.reduce((s, i) => s + i.quantity, 0);
+      const total = sale.total;
 
-let y = doc.y + 30;
-let totalCantidad = 0;
-let totalVentas = 0;
+      totalCantidad += cantidad;
+      totalVentas += total;
 
-sales.forEach((sale, index) => {
-  sale.items.forEach((item, idx) => {
-    const subtotal = item.quantity * item.price;
-    totalCantidad += item.quantity;
-    totalVentas += subtotal;
+      if (y + rowHeight > 750) {
+        doc.addPage();
+        y = 40;
+      }
 
-    const fechaVenta = sale.saleDate
-      ? new Date(sale.saleDate).toLocaleDateString('es-CO')
-      : new Date(sale.createdAt).toLocaleDateString('es-CO');
+      if (idx % 2 === 0) {
+        doc.rect(40, y - 2, 515, rowHeight).fill('#f2f2f2').fillColor('black');
+      }
 
-    if (y > 700) {
-      doc.addPage();
-      y = 40;
+      const rowData = [
+        new Date(sale.saleDate).toLocaleDateString('es-CO'),
+        sale.customerName || 'N/A',
+        productos,
+        cantidad.toString(),
+        new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(total),
+        sale.paymentMethod || 'N/A'
+      ];
 
-      // Repetir encabezado
-      doc.rect(table.x, y, 550, 25).fill('#3498db');
-      doc.font('Helvetica-Bold')
-        .fontSize(11)
-        .fillColor('#ffffff')
-        .text(table.headers[0], table.x + 5, y + 7, { width: table.widths[0] })
-        .text(table.headers[1], table.x + table.widths[0] + 15, y + 7, { width: table.widths[1] })
-        .text(table.headers[2], table.x + table.widths[0] + table.widths[1] + 25, y + 7, { width: table.widths[2] })
-        .text(table.headers[3], table.x + table.widths[0] + table.widths[1] + table.widths[2] + 35, y + 7, { width: table.widths[3], align: 'center' })
-        .text(table.headers[4], table.x + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 45, y + 7, { width: table.widths[4], align: 'right' })
-        .text(table.headers[5], table.x + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + 55, y + 7, { width: table.widths[5] });
+      rowData.forEach((text, i) => {
+        doc.fillColor('black').text(text, 40 + columnWidths.slice(0, i).reduce((a, b) => a + b, 0), y, {
+          width: columnWidths[i],
+          align: 'left'
+        });
+      });
 
-      y += 30;
-    }
+      y += rowHeight;
+    });
 
-    // Fila alternada
-    doc.rect(40, y - 5, 550, 20)
-       .fill((index + idx) % 2 === 0 ? '#f8f9fa' : '#ffffff');
-
-    doc.font('Helvetica')
-      .fontSize(10)
-      .fillColor('#2c3e50')
-      .text(fechaVenta, 45, y, { width: table.widths[0] })
-      .text(sale.customerName || 'N/A', 45 + table.widths[0] + 15, y, { width: table.widths[1] })
-      .text(item.name, 45 + table.widths[0] + table.widths[1] + 25, y, { width: table.widths[2] })
-      .text(item.quantity.toString(), 45 + table.widths[0] + table.widths[1] + table.widths[2] + 35, y, { width: table.widths[3], align: 'center' })
-      .text(formatCurrency(item.price), 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + 45, y, { width: table.widths[4], align: 'right' })
-      .text(formatCurrency(subtotal), 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + 55, y, { width: table.widths[5], align: 'right' })
-      .text(sale.paymentMethod || 'N/A', 45 + table.widths[0] + table.widths[1] + table.widths[2] + table.widths[3] + table.widths[4] + table.widths[5] + 65, y, { width: table.widths[6] });
-
+    // Resumen
     y += 20;
-  });
-});
+    doc.font('Helvetica-Bold').fontSize(11).text('RESUMEN FINAL', 400, y);
+    y += 15;
+    doc.font('Helvetica').fontSize(10)
+      .text(`Total ventas: ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(totalVentas)}`, 400, y)
+      .text(`Ventas realizadas: ${sales.length}`, 400, y + 15)
+      .text(`Productos vendidos: ${totalCantidad}`, 400, y + 30);
 
-// ⬇️⬇️ SECCIÓN DE RESUMEN
-if (y > 650) {
-  doc.addPage();
-  y = 40;
-}
+    // Pie de página
+    const now = new Date();
+    now.setHours(now.getHours() - 5);
+    const fecha = now.toLocaleDateString('es-CO');
+    const hora = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-doc.moveDown(2);
+    doc.moveDown(2)
+      .fontSize(10)
+      .fillColor('#95a5a6')
+      .text(`Reporte generado el ${fecha} a las ${hora}`, { align: 'center' });
 
-doc.font('Helvetica-Bold')
-  .fontSize(12)
-  .fillColor('#2c3e50')
-  .text('RESUMEN FINAL', 400, y + 10, { align: 'right', width: 150 });
-
-doc.font('Helvetica-Bold')
-  .fontSize(11)
-  .fillColor('#2c3e50')
-  .text('Total dinero recaudado: ', 400, y + 35, { width: 120, align: 'right' })
-  .font('Helvetica')
-  .fillColor('#e74c3c')
-  .text(formatCurrency(totalVentas), 525, y + 35, { width: 60, align: 'right' });
-
-doc.font('Helvetica-Bold')
-  .fillColor('#2c3e50')
-  .text('Número de ventas realizadas: ', 400, y + 55, { width: 120, align: 'right' })
-  .font('Helvetica')
-  .fillColor('#e74c3c')
-  .text(sales.length.toString(), 525, y + 55, { width: 60, align: 'right' });
-
-doc.font('Helvetica-Bold')
-  .fillColor('#2c3e50')
-  .text('Cantidad total de productos vendidos: ', 400, y + 75, { width: 120, align: 'right' })
-  .font('Helvetica')
-  .fillColor('#e74c3c')
-  .text(totalCantidad.toString(), 525, y + 75, { width: 60, align: 'right' });
-
-// Pie de página
-const footerText = `Reporte generado el ${new Date().toLocaleDateString('es-CO')} a las ${new Date().toLocaleTimeString('es-CO', {
-  hour: '2-digit',
-  minute: '2-digit'
-})}`;
-
-doc.moveDown(2)
-  .font('Helvetica-Oblique')
-  .fontSize(10)
-  .fillColor('#95a5a6')
-  .text(footerText, { align: 'center', width: 400 });
-
-// Finalizar PDF
-doc.end();
-
-
+    doc.end();
 
   } catch (error) {
-    console.error('Error generando reporte:', error);
+    console.error('Error generando PDF:', error);
     if (!res.headersSent) {
       res.status(500).json({ error: 'Error generando el reporte' });
     }
   }
 });
 
-// 
+
+
+
+
+const Product = require('../models/Product');
 
 router.post('/', verifyToken, async (req, res) => {
   try {
     const {
       saleDate,
-      sellerName,
+      customerName,
       customerPhone,
       products,
       quantity,
@@ -327,74 +256,60 @@ router.post('/', verifyToken, async (req, res) => {
       notes,
       address
     } = req.body;
-    
-    const parsedDate = saleDate ? new Date(saleDate) : new Date();
 
-
-    if (!sellerName || !products || !quantity || !totalPrice) {
-  return res.status(400).json({ error: 'Faltan campos requeridos' });
-}
-
-    const currentSeller = await Seller.findById(req.user.id);
-    if (!currentSeller) {
-      return res.status(403).json({ error: 'Vendedor autenticado no encontrado' });
+    if (!customerName || !products || !quantity || !totalPrice) {
+      return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
 
-    const enteredName = sellerName.trim().toLowerCase();
-    const myName = currentSeller.name.trim().toLowerCase();
+    // Crear items con product ObjectId
+    const productNames = products.split(',').map(p => p.trim());
+    const items = [];
 
-    let isValidSeller = enteredName === myName;
-    const subordinates = await Seller.find({ jefe: currentSeller._id });
-    const names = subordinates.map(s => s.name.trim().toLowerCase());
+    for (const name of productNames) {
+      const productDoc = await Product.findOne({ name: new RegExp('^' + name + '$', 'i') });
+      if (!productDoc) {
+        return res.status(400).json({ success: false, error: `Producto no encontrado: ${name}` });
+      }
+      items.push({
+        product: productDoc._id,
+        name: productDoc.name,
+        quantity: Number(quantity),
+        price: productDoc.price || 0
+      });
+    }
 
-if (!isValidSeller && names.includes(enteredName)) {
-  isValidSeller = true;
-}
-
-
-    if (hasSeller === 'Sí' && sellerCode) {
-      const secondarySeller = await Seller.findOne({ code: sellerCode.trim() });
-      if (!secondarySeller) {
-        return res.status(400).json({ error: 'Código de vendedor no válido' });
+    // Ajustar saleDate para evitar desfase de zona horaria
+    let adjustedSaleDate = null;
+    if (saleDate) {
+      // Si saleDate es string en formato ISO o fecha, crear objeto Date directamente
+      if (typeof saleDate === 'string' && !saleDate.includes('T')) {
+        // Si no tiene hora, agregar mediodía UTC para evitar desfase
+        adjustedSaleDate = new Date(saleDate + 'T12:00:00Z');
+      } else {
+        adjustedSaleDate = new Date(saleDate);
       }
     }
 
-    if (!isValidSeller) {
-  console.log('Vendedor ingresado no válido:', sellerName); // ⚠️ si en tu formulario usas 'customerName'
-  console.log('Subordinados permitidos:', names); // 'names' es el array de nombres de subordinados
-  return res.status(403).json({ error: 'Nombre de vendedor no autorizado' });
-}
-
-    const items = [{
-      product: new mongoose.Types.ObjectId(), // temporal (reemplazar si tienes ID reales)
-      name: products,
-      quantity: Number(quantity),
-      price: Number(totalPrice)
-    }];
-     
     const newOrder = new Order({
-      customerName: sellerName,
+      customerName,
+      customerPhone,
       address: address || 'No especificada',
       items,
       total: Number(totalPrice),
       paymentMethod,
       notes,
-      saleDate: parsedDate,
+      saleDate: adjustedSaleDate,
       seller: req.user.id,
       sellerCode: hasSeller === 'Sí' ? sellerCode : null
     });
 
     await newOrder.save();
-    res.status(201).json({ success: true, message: 'Venta registrada correctamente' });
 
+    res.status(201).json({ success: true, message: 'Venta registrada correctamente' });
   } catch (error) {
     console.error('Error al registrar la venta:', error);
     res.status(500).json({ error: 'Error al registrar la venta' });
   }
 });
 
-
-
-
-
-module.exports = router;
+module.exports = router; 
