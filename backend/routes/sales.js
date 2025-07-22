@@ -170,40 +170,45 @@ router.get('/report', verifyToken, async (req, res) => {
     // Dibujar filas
     doc.font('Helvetica').fontSize(9);
     sales.forEach((sale, idx) => {
-      const productos = sale.items.map(i => i.name).join(', ');
-      const cantidad = sale.items.reduce((s, i) => s + i.quantity, 0);
-      const total = sale.total;
+  const productos = sale.items.map(i => i.name).join(', ');
+  const cantidad = sale.items.reduce((s, i) => s + i.quantity, 0);
+  const total = sale.total;
 
-      totalCantidad += cantidad;
-      totalVentas += total;
+  totalCantidad += cantidad;
+  totalVentas += total;
 
-      if (y + rowHeight > 750) {
-        doc.addPage();
-        y = 40;
-      }
+  if (y + rowHeight > 750) {
+    doc.addPage();
+    y = 40;
+  }
 
-      if (idx % 2 === 0) {
-        doc.rect(40, y - 2, 515, rowHeight).fill('#f2f2f2').fillColor('black');
-      }
+  if (idx % 2 === 0) {
+    doc.rect(40, y - 2, 515, rowHeight).fill('#f2f2f2').fillColor('black');
+  }
 
-      const rowData = [
-        new Date(sale.saleDate || Date.now()).toLocaleDateString('es-CO'),
-        sale.customerName || 'N/A',
-        productos,
-        cantidad.toString(),
-        new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(total),
-        sale.paymentMethod || 'N/A'
-      ];
+  // ✅ FECHA con respaldo en createdAt si saleDate no está definido
+  const fechaVenta = sale.saleDate
+    ? new Date(sale.saleDate).toLocaleDateString('es-CO')
+    : new Date(sale.createdAt).toLocaleDateString('es-CO');
 
-      rowData.forEach((text, i) => {
-        doc.fillColor('black').text(text, 40 + columnWidths.slice(0, i).reduce((a, b) => a + b, 0), y, {
-          width: columnWidths[i],
-          align: 'left'
-        });
-      });
+  const rowData = [
+    fechaVenta,
+    sale.customerName  ||'N/A',
+    productos,
+    cantidad.toString(),
+    new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(total),
+    sale.paymentMethod  ||'N/A'
+  ];
 
-      y += rowHeight;
+  rowData.forEach((text, i) => {
+    doc.fillColor('black').text(text, 40 + columnWidths.slice(0, i).reduce((a, b) => a + b, 0), y, {
+      width: columnWidths[i],
+      align: 'left'
     });
+  });
+
+  y += rowHeight;
+});
 
     // Resumen
     y += 20;
